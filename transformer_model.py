@@ -163,7 +163,7 @@ class EncoderLayer(nn.Module):
         self.add_norm_attention = nn.LayerNorm(d_model)
         self.add_norm_ffn = nn.LayerNorm(d_model)
 
-        self.feed_forward = FeedForward(d_model, d_ff)
+        self.feed_forward = FeedForward(d_model, d_ff, dropout_p)
         self.dropout = nn.Dropout(p=dropout_p)
 
     def forward(self, src, src_mask) -> Tensor:
@@ -256,4 +256,8 @@ class Encoder(nn.Module):
 
         return src_input_embeddings
 
+
+class DecoderLayer(nn.Module):
+    def __init__(self, d_model, n_heads, d_ff, dropout_p):
+        super(DecoderLayer).__init__()
 
