@@ -78,8 +78,6 @@ class MultiHeadedAttention(nn.Module):
         # resultant q,k,v shapes from previous steps are:
         # (N, query_seq_len or key_seq_len or value_seq_len, n_heads, head_dim)
 
-
-
         # this part corresponds to Q * K_transposed via bmm (batch matrix multiplication) in the Scaled Dot Product
         # Attention
         # einsum takes care of mapping Q_ij to K_ji so the transpose is taken care of under the hood
@@ -146,8 +144,8 @@ class FeedForward(nn.Module):
 
 class EncoderLayer(nn.Module):
     """
-    Implement the Encoder block with the attention sublayer and FFN sublayer. This layer is stacked n_layers times
-    in the TransformerEncoder part of the architecture
+    Implement the Encoder block with the 2 sublayers: 1) attention sublayer 2) FFN sublayer.
+    This layer is stacked n_layers times in the Encoder part of the Transformer architecture
     """
 
     def __init__(self, d_model, n_heads, d_ff, dropout_p):
@@ -159,7 +157,7 @@ class EncoderLayer(nn.Module):
         :param dropout_p: dropout applied before output of each sublayer (default p=0.1)
         """
         super(EncoderLayer, self).__init__()
-        self.attention = MultiHeadedAttention(d_model, n_heads)
+        self.attention = MultiHeadedAttention(n_heads, d_model)
         self.add_norm_attention = nn.LayerNorm(d_model)
         self.add_norm_ffn = nn.LayerNorm(d_model)
 
@@ -258,6 +256,61 @@ class Encoder(nn.Module):
 
 
 class DecoderLayer(nn.Module):
+    """
+    Implement the Decoder block with the 3 sublayers: 1) decoder attention sublayer 2) encoder attention sublayer
+    3) FFN sublayer.
+    This layer is stacked n_layers times in the Decoder part of the Transformer architecture
+    """
+
     def __init__(self, d_model, n_heads, d_ff, dropout_p):
         super(DecoderLayer).__init__()
+        self.masked_decoder_attention = MultiHeadedAttention(n_heads, d_model)
+        self.add_norm_dec_attention = nn.LayerNorm(d_model)
+        self.encoder_attention = MultiHeadedAttention(n_heads, d_model)
+        self.add_norm_enc_attention = nn.LayerNorm(d_model)
+        self.feed_forward = FeedForward(d_model, d_ff, dropout_p)
+        self.add_norm_ffn = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(p=dropout_p)
 
+    def forward(self, trg, src_encoder_output, trg_mask, src_mask) -> Tensor:
+        """
+        1. masked decoder attention sublayer
+            1.a in the DecoderLayer Q,K,V are all from the same input trg
+        2. add and normalize attention sublayer output with residual input from before the decoder attention sublayer
+        3. apply dropout to the added and normed output of the attention sublayer
+        4. encoder attention sublayer
+            4.a in the DecoderLayer Q is from output of previous decoder sublayer,
+            K,V are from last encoder layer output
+        5. add and normalize encoder attention sublayer output with residual from the output of step 3.
+        6. apply dropout to the added and normed output of the encoder attention sublayer
+        7. output from encoder attention sublayer goes through FFN
+        8. add and normalize output_from_ffn with residual (output from encoder attention sublayer) from before the
+        ffn layer
+        9. apply dropout to the added and normed output of the FFN sublayer
+
+        :param trg: shape (N, trg_seq_len, d_model)
+        :param src_encoder_output: shape (N, src_seq_len, d_model)
+        :param trg_mask: shape (batch N, 1, trg_seq_len, trg_seq_len)
+        :param src_mask: shape (N, 1, 1, src_seq_len)
+        :return:
+        """
+
+        # Steps 1, 2, 3
+        decoder_attention_sublayer = self.masked_decoder_attention(trg, trg, trg, trg_mask)
+        output_dec_attention_sublayer = self.dropout(self.add_norm_dec_attention(decoder_attention_sublayer + trg))
+        # output_dec_attention_sublayer shape: (N, trg_seq_len, d_model)
+
+        # Steps 4, 5, 6
+        enc_attention_sublayer = self.encoder_attention(output_dec_attention_sublayer, src_encoder_output,
+                                                        src_encoder_output, src_mask)
+        output_enc_attention_sublayer = self.dropout(self.add_norm_enc_attention(enc_attention_sublayer +
+                                                                                 output_dec_attention_sublayer))
+        # output_enc_attention_sublayer shape: (N, trg_seq_len, d_model)
+
+        # Steps 7, 8, 9
+        output_from_ffn = self.feed_forward(output_enc_attention_sublayer)
+        output = self.add_norm_ffn(output_from_ffn + output_enc_attention_sublayer)
+        # output shape: (N, trg_seq_len, d_model)
+        output = self.dropout(output)
+
+        return output
