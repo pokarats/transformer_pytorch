@@ -38,13 +38,13 @@ class MultiHeadedAttention(nn.Module):
         # these nn.Linear layers are the weight matrices that are multiplied with the input vectors
         # these are equivalent to W_v, W_k, W_q in the paper
         # head_dim are d_k = d_v = d_q = d_model / # heads as in the paper
-        self.values = nn.Linear(self.head_dim, self.head_dim, bias=False)
-        self.keys = nn.Linear(self.head_dim, self.head_dim, bias=False)
-        self.queries = nn.Linear(self.head_dim, self.head_dim, bias=False)
+        self.fc_values = nn.Linear(self.d_model, self.d_model, bias=False)
+        self.fc_keys = nn.Linear(self.d_model, self.d_model, bias=False)
+        self.fc_queries = nn.Linear(self.d_model, self.d_model, bias=False)
 
         # the weight matrix that after concatenating the heads together makes the output from this sublayer
         # have compatible shape/size: d_model
-        self.fc_layer = nn.Linear(self.n_heads * self.head_dim, self.d_model)
+        self.fc_out = nn.Linear(self.n_heads * self.head_dim, self.d_model)
 
     def forward(self, value: Tensor, key: Tensor, query: Tensor, mask) -> Tensor:
         """
@@ -55,26 +55,30 @@ class MultiHeadedAttention(nn.Module):
         :param mask:
         :return:
         """
-        # value/key/query.shape: batch_size x sequence length
+        # value/key/query.shape: (N, sequence length, d_model)
         # sequence length is either src or trg length depending on if this is being used in the Encoder or Decoder
-        # N refers to number of samples/sentences in input batch
+        # N refers to number of samples/sentences in input batch i.e. batch size
         N = query.shape[0]
         value_seq_len, key_seq_len, query_seq_len = value.shape[1], key.shape[1], query.shape[1]
 
+        # query, key, value matrices from projection through multiplication with the W_q, W_k, W_v weight matrices
+        # for calculating attention
+        # transformed with weight matrices of shapes: (d_model, d_model)
+        # resultant shapes: (N, query_seq_len or key_seq_len or value_seq_len, d_model)
+        value = self.fc_values(value)
+        key = self.fc_keys(key)
+        query = self.fc_queries(query)
+
         # splitting value, key, query embeddings into n_heads pieces by .reshaping (same as .view but .view always
         # need to be contiguous)
+        # q,k,v shapes from previous steps are: (N, query_seq_len or key_seq_len or value_seq_len, d_model)
         value = value.reshape(N, value_seq_len, self.n_heads, self.head_dim)
         key = key.reshape(N, key_seq_len, self.n_heads, self.head_dim)
         query = query.reshape(N, query_seq_len, self.n_heads, self.head_dim)
+        # resultant q,k,v shapes from previous steps are:
+        # (N, query_seq_len or key_seq_len or value_seq_len, n_heads, head_dim)
 
-        # query, key, value matrices from projection through multiplication with the W_q, W_k, W_v weight matrices
-        # for calculating attention
-        # q,k,v shapes from previous steps are: (N, query_seq_len or key_seq_len or value_seq_len, n_heads, head_dim)
-        # bmm with weight matrices of shapes: (head_dim, head_dim)
-        # resultant shapes: (N, query_seq_len or key_seq_len or value_seq_len, n_heads, head_dim)
-        value = self.values(value)
-        key = self.keys(key)
-        query = self.queries(query)
+
 
         # this part corresponds to Q * K_transposed via bmm (batch matrix multiplication) in the Scaled Dot Product
         # Attention
@@ -105,7 +109,7 @@ class MultiHeadedAttention(nn.Module):
         # concatenate these n_heads attentions together with reshape to flatten last two dim to end up with
         # output.shape: (N, query_seq_len, d_model == n_heads * head_dim)
         output = attention.reshape(N, query_seq_len, self.n_heads * self.head_dim)
-        output: Tensor = self.fc_layer(output)
+        output: Tensor = self.fc_out(output)
 
         return output  # output shape: (N, query_seq_len, d_model)
 
@@ -116,22 +120,23 @@ class FeedForward(nn.Module):
     FFN = Relu(input_x * W_1 + b_1) * W_2 + b_2
     """
 
-    def __init__(self, d_model, d_ff):
+    def __init__(self, d_model, d_ff, dropout_p):
         """
 
         :param d_model: embedding size or model size (default = 512 in the paper)
-        :param d_ff: size of hidden layer in the FFN (default = 1024 in the paper)
+        :param d_ff: size of hidden layer in the FFN (default = 2048 in the paper)
+        :param dropout_p: dropout applied after ReLu before final transform (default p=0.1)
         """
         super(FeedForward, self).__init__()
         self.w_1 = nn.Linear(d_model, d_ff, bias=True)
         self.w_2 = nn.Linear(d_ff, d_model, bias=True)
-        # self.dropout = nn.Dropout(p=dropout_p)
+        self.dropout = nn.Dropout(p=dropout_p)
 
     def forward(self, output_from_attention_sublayer: Tensor) -> Tensor:
         # shape of output_from_attention_sublayer: (N, query_seq_len, d_model)
         x_w_1 = F.relu(self.w_1(output_from_attention_sublayer))
         # shape of x_w_1: (N, query_seq_len, d_ff)
-        # x_w_1 = self.dropout(x_w_1)
+        x_w_1 = self.dropout(x_w_1)
 
         # shape of output after going through self.w_2: (N, query_seq_len, d_model)
         output = self.w_2(x_w_1)
@@ -139,66 +144,116 @@ class FeedForward(nn.Module):
         return output
 
 
-class TransformerBlock(nn.Module):
+class EncoderLayer(nn.Module):
     """
-    Implement the Transformer block with the attention sublayer and FFN sublayer
+    Implement the Encoder block with the attention sublayer and FFN sublayer. This layer is stacked n_layers times
+    in the TransformerEncoder part of the architecture
     """
 
-    def __init__(self, d_model, n_heads, dropout_p, d_ff):
+    def __init__(self, d_model, n_heads, d_ff, dropout_p):
         """
 
         :param d_model: embedding size or model size (default = 512 in the paper)
         :param n_heads: number of heads to split into in the Multi-Headed Attention layer (default = 8 in the paper)
+        :param d_ff: size of hidden layer in the FFN (default = 2048 in the paper)
         :param dropout_p: dropout applied before output of each sublayer (default p=0.1)
-        :param d_ff: size of hidden layer in the FFN (default = 1024 in the paper)
         """
-        super(TransformerBlock, self).__init__()
+        super(EncoderLayer, self).__init__()
         self.attention = MultiHeadedAttention(d_model, n_heads)
-        self.add_norm1 = nn.LayerNorm(d_model)
-        self.add_norm2 = nn.LayerNorm(d_model)
+        self.add_norm_attention = nn.LayerNorm(d_model)
+        self.add_norm_ffn = nn.LayerNorm(d_model)
 
         self.feed_forward = FeedForward(d_model, d_ff)
         self.dropout = nn.Dropout(p=dropout_p)
 
-    def forward(self, value, key, query, mask) -> Tensor:
+    def forward(self, src, src_mask) -> Tensor:
         """
         1. attention sublayer
+            1.a in the EncoderLayer Q,K,V are all from the same x input
         2. add and normalize attention sublayer output with residual input from before the attention_sublayer
         3. apply dropout to the added and normed output of the attention sublayer
         4. output from attention sublayer goes through FFN
         5. add and normalize output_from_ffn with residual (output from attention sublayer) from before the ffn layer
         6. apply dropout to the added and normed output of the FFN sublayer
 
-        :param value:
-        :param key:
-        :param query:
-        :param mask:
-        :return:
+        :param src: src shape (N, src_seq_len, d_model)
+        :param src_mask: src_mask shape (N, 1, 1, src_seq_len)
+        :return: output Tensor that will become input Tensor in the next EncoderLayer
         """
 
-        # output from attention sublayer shape: (N, query_seq_len, d_model)
-        attention_sublayer = self.attention(value, key, query, mask)
-        output_from_attention_sublayer = self.dropout(self.add_norm1(attention_sublayer + query))
-        # should this be + query or + concat of query, key, value??
-        # query shape needs to be also: (N, query_seq_len, d_model)??
+        # output from attention sublayer shape: (N, src_seq_len, d_model)
+        attention_sublayer = self.attention(src, src, src, src_mask)
+        output_from_attention_sublayer = self.dropout(self.add_norm_attention(attention_sublayer + src))
 
         output_from_ffn = self.feed_forward(output_from_attention_sublayer)
-        output = self.add_norm2(output_from_attention_sublayer + output_from_ffn)
-        # output shape: (N, query_seq_len, d_model)
+        output = self.add_norm_ffn(output_from_attention_sublayer + output_from_ffn)
+        # output shape: (N, src_seq_len, d_model)
         output = self.dropout(output)
 
         return output
 
 
+class PositionEmbedding(nn.Module):
+    pass
+
+
 class Encoder(nn.Module):
-    def __init__(self, src_vocab_size, d_model, n_layers, n_heads, d_ff, dropout_p, max_length, device):
+    def __init__(self, src_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device):
+        """
+
+        :param src_vocab_size:
+        :param d_model:
+        :param nx_layers:
+        :param n_heads:
+        :param d_ff:
+        :param dropout_p:
+        :param max_length:
+        :param device:
+        """
         super(Encoder, self).__init__()
         self.src_vocab_size = src_vocab_size
         self.d_model = d_model
-        self.n_layers = n_layers
+        self.device = device
+        self.nx_layers = nx_layers
         self.n_heads = n_heads
         self.d_ff = d_ff
-        self.input_embedding = nn.Embedding(src_vocab_size, d_model)
         self.max_length = max_length
+
+        self.input_embedding = nn.Embedding(src_vocab_size, d_model)
+        self.position_embedding = nn.Embedding(max_length, d_model)  # TODO implement PositionEmbedding per paper
+
+        self.encoder_layers = nn.ModuleList([EncoderLayer(d_model, n_heads, d_ff, dropout_p)
+                                             for _ in range(nx_layers)])
+
         self.dropout = nn.Dropout(p=dropout_p)
-        self.device = device
+
+    def forward(self, src: Tensor, src_mask: Tensor) -> Tensor:
+        """
+
+        :param src: src shape (N, src_seq_len)
+        :param src_mask: src_mask shape (N, 1, 1, src_seq_len)
+        :return: output from the last encoder layer in the stack
+        """
+
+        # N refers to number of samples/sentences in input batch i.e. batch size
+        N, src_seq_len = src.shape
+
+        # generate position indices from 0 to src_seq_len and expand dimension to cover all samples in N batch size
+        # positions shape: (N, src_seq_len)
+        positions = torch.arange(0, src_seq_len).expand(N, src_seq_len).to(self.device)
+
+        # input embeddings is the element-wise sum between input token embedding and position embedding
+        # input token embedding is scaled by a factor of sqrt(d_model) in the paper
+        # dropout is applied to the embeddings after summing
+        src_input_embeddings = self.dropout(self.input_embedding(src) * math.sqrt(self.d_model) +
+                                            self.position_embedding(positions))
+
+        # src_input_embeddings shape: (N, src_seq_len, d_model)
+        # the ouput from each enc_layer becomes the input to the next enc_layer
+        # only the ouput from the last enc_layer will be sent out as input to the decoder block
+        for enc_layer in self.encoder_layers:
+            src_input_embeddings = enc_layer(src_input_embeddings, src_mask)
+
+        return src_input_embeddings
+
+
