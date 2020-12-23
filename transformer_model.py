@@ -28,7 +28,7 @@ class MultiHeadedAttention(nn.Module):
         :param n_heads: number of heads to split into (default = 8 in the paper)
         :param d_model: size of embedding (default = 512 in the paper)
         """
-        super(MultiHeadedAttention).__init__()
+        super(MultiHeadedAttention, self).__init__()
         self.d_model = d_model
         self.n_heads = n_heads
         self.head_dim = d_model // n_heads
@@ -46,7 +46,7 @@ class MultiHeadedAttention(nn.Module):
         # have compatible shape/size: d_model
         self.fc_out = nn.Linear(self.n_heads * self.head_dim, self.d_model)
 
-    def forward(self, value: Tensor, key: Tensor, query: Tensor, mask) -> Tensor:
+    def forward(self, value: Tensor, key: Tensor, query: Tensor, mask: Tensor) -> Tensor:
         """
 
         :param value:
@@ -167,7 +167,7 @@ class EncoderLayer(nn.Module):
     def forward(self, src, src_mask) -> Tensor:
         """
         1. attention sublayer
-            1.a in the EncoderLayer Q,K,V are all from the same x input
+            1.a in the EncoderLayer V,K,Q are all from the same x input
         2. add and normalize attention sublayer output with residual input from before the attention_sublayer
         3. apply dropout to the added and normed output of the attention sublayer
         4. output from attention sublayer goes through FFN
@@ -263,7 +263,7 @@ class DecoderLayer(nn.Module):
     """
 
     def __init__(self, d_model, n_heads, d_ff, dropout_p):
-        super(DecoderLayer).__init__()
+        super(DecoderLayer, self).__init__()
         self.masked_decoder_attention = MultiHeadedAttention(n_heads, d_model)
         self.add_norm_dec_attention = nn.LayerNorm(d_model)
         self.encoder_attention = MultiHeadedAttention(n_heads, d_model)
@@ -275,12 +275,12 @@ class DecoderLayer(nn.Module):
     def forward(self, trg, src_encoder_output, trg_mask, src_mask) -> Tensor:
         """
         1. masked decoder attention sublayer
-            1.a in the DecoderLayer Q,K,V are all from the same input trg
+            1.a in the DecoderLayer V,K,Q are all from the same input trg
         2. add and normalize attention sublayer output with residual input from before the decoder attention sublayer
         3. apply dropout to the added and normed output of the attention sublayer
         4. encoder attention sublayer
             4.a in the DecoderLayer Q is from output of previous decoder sublayer,
-            K,V are from last encoder layer output
+            V,K are from last encoder layer output
         5. add and normalize encoder attention sublayer output with residual from the output of step 3.
         6. apply dropout to the added and normed output of the encoder attention sublayer
         7. output from encoder attention sublayer goes through FFN
@@ -301,8 +301,8 @@ class DecoderLayer(nn.Module):
         # output_dec_attention_sublayer shape: (N, trg_seq_len, d_model)
 
         # Steps 4, 5, 6
-        enc_attention_sublayer = self.encoder_attention(output_dec_attention_sublayer, src_encoder_output,
-                                                        src_encoder_output, src_mask)
+        enc_attention_sublayer = self.encoder_attention(value=src_encoder_output, key=src_encoder_output,
+                                                        query=output_dec_attention_sublayer, mask=src_mask)
         output_enc_attention_sublayer = self.dropout(self.add_norm_enc_attention(enc_attention_sublayer +
                                                                                  output_dec_attention_sublayer))
         # output_enc_attention_sublayer shape: (N, trg_seq_len, d_model)
@@ -314,3 +314,144 @@ class DecoderLayer(nn.Module):
         output = self.dropout(output)
 
         return output
+
+
+class Decoder(nn.Module):
+    def __init__(self, trg_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device):
+        super(Decoder, self).__init__()
+        self.src_vocab_size = trg_vocab_size
+        self.d_model = d_model
+        self.device = device
+        self.nx_layers = nx_layers
+        self.n_heads = n_heads
+        self.d_ff = d_ff
+        self.max_length = max_length
+
+        self.input_embedding = nn.Embedding(trg_vocab_size, d_model)
+        self.position_embedding = nn.Embedding(max_length, d_model)  # TODO implement PositionEmbedding per paper
+
+        self.decoder_layers = nn.ModuleList([DecoderLayer(d_model, n_heads, d_ff, dropout_p)
+                                             for _ in range(nx_layers)])
+
+        self.dropout = nn.Dropout(p=dropout_p)
+
+    def forward(self, trg, src_encoder_output, trg_mask, src_mask) -> Tensor:
+        """
+
+        :param trg: src shape (N, trg_seq_len)
+        :param src_encoder_output: src_input_embeddings shape (N, src_seq_len, d_model)
+        :param trg_mask: shape (batch N, 1, trg_seq_len, trg_seq_len)
+        :param src_mask: shape (N, 1, 1, src_seq_len)
+        :return:
+        """
+        # N refers to number of samples/sentences in input batch i.e. batch size
+        N, trg_seq_len = trg.shape
+
+        # generate position indices from 0 to trg_seq_len and expand dimension to cover all samples in N batch size
+        # positions shape: (N, trg_seq_len)
+        positions = torch.arange(0, trg_seq_len).expand(N, trg_seq_len).to(self.device)
+
+        # input embeddings is the element-wise sum between input token embedding and position embedding
+        # input token embedding is scaled by a factor of sqrt(d_model) in the paper
+        # dropout is applied to the embeddings after summing
+        trg_input_embeddings = self.dropout(self.input_embedding(trg) * math.sqrt(self.d_model) +
+                                            self.position_embedding(positions))
+
+        # trg_input_embeddings shape: (N, trg_seq_len, d_model)
+        # the ouput from each enc_layer becomes the input to the next dec_layer
+        # only the ouput from the last deco_layer will be sent out to the linear layer after the Decoder block
+        for dec_layer in self.decoder_layers:
+            trg_input_embeddings = dec_layer(trg_input_embeddings, src_encoder_output, trg_mask, src_mask)
+
+        return trg_input_embeddings
+
+
+class Transformer(nn.Module):
+    def __init__(self, src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx, d_model, nx_layers, n_heads, d_ff,
+                 dropout_p, max_length, device):
+        super(Transformer, self).__init__()
+        self.encoder = Encoder(src_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device)
+        self.decoder = Decoder(trg_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device)
+        self.src_pad_idx = src_pad_idx
+        self.trg_pad_idx = trg_pad_idx
+        self.device = device
+
+    def make_src_mask(self, src: Tensor):
+        """
+        Wherever src is not a pad idx, add dim of 1
+        :param src: src shape (N, src_seq_len)
+        :return: src_mask shape (N, 1, 1, src_seq_len)
+        """
+
+        src_mask = (src != self.src_pad_idx).unsqueeze(1).unsqueeze(2)
+        # src_mask shape after unsqueeze: (N, 1, 1, src_seq_len)
+
+        return src_mask
+
+    def make_trg_mask(self, trg: Tensor):
+        """
+
+        :param trg: trg shape (N, trg_seq_len)
+        :return: trg_mask shape (N, 1, trg_seq_len, trg_seq_len)
+        """
+        N, trg_seq_len = trg.shape
+        trg_mask = torch.tril(torch.ones((trg_seq_len, trg_seq_len)))
+        # trg_mask shape: (trg_seq_len, trg_seq_len)
+        # where the bottom left of the diagonal is filled with ones and the upper corner is 0-filled
+
+        trg_mask = trg_mask.expand(N, 1, trg_seq_len, trg_seq_len).to(self.device)
+        # trg_mask shape: (N, 1, trg_seq_len, trg_seq_len)
+
+        return trg_mask
+
+    def forward(self, src: Tensor, trg: Tensor) -> Tensor:
+        """
+
+        :param src: src shape (N, src_seq_len)
+        :param trg: trg shape (N, trg_seq_len)
+        :return:
+        """
+        src_mask = self.make_src_mask(src)
+        trg_mask = self.make_trg_mask(trg)
+        # src_mask shape: (N, 1, 1, src_seq_len]
+        # trg_mask shape: (N, 1, trg_seq_len, trg_seq_len)
+
+        src_encoder_ouput = self.encoder(src, src_mask)
+        # src_encoder_ouput shape: (N, src_seq_len, d_model)
+
+        output = self.decoder(trg, src_encoder_ouput, trg_mask, src_mask)
+        # output shape: (N, trg_seq_len, d_model)
+
+        return output
+
+
+if __name__ == "__main__":
+    # dummy data test
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(device)
+
+    src = torch.tensor([[2, 5, 6, 4, 0, 9, 5, 3, 1], [2, 8, 7, 0, 4, 5, 6, 7, 3]]).to(device)
+    trg = torch.tensor([[2, 7, 4, 0, 5, 9, 3, 1], [2, 5, 6, 2, 4, 7, 6, 3]]).to(device)
+
+    # hyperparameters
+    src_pad_idx = 1
+    trg_pad_idx = 1
+    src_vocab_size = 10  # 0 to 9, 1 == 'pad' 2 == 'sos' 3 == 'eos'
+    trg_vocab_size = 10  # 0 to 9, 1 == 'pad' 2 == 'sos' 3 == 'eos'
+    d_model_hidden_size = 512
+    nx = 6
+    num_attention_heads = 8
+    d_ff_hidden_size = 2048
+    drop_out = 0.1
+    max_seq_length = 100  # 300 in paper
+
+    model = Transformer(src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx, d_model_hidden_size, nx,
+                        num_attention_heads, d_ff_hidden_size, drop_out, max_seq_length, device=device).to(device)
+
+    # predicted output without 'eos' token from trg
+    print(f'src: {src}, src shape: {src.shape}')
+    print(f'trg: {trg} trg shape: {trg.shape}')
+    print(f'trg without last token {trg[:, :-1]}, trg without <eos> shape: {trg[:, :-1].shape}')
+    out = model(src, trg[:, :-1])
+    print(f'out.shape: {out.shape}')
+    print(out)
