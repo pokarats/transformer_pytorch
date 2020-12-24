@@ -18,6 +18,7 @@ class MultiHeadedAttention(nn.Module):
     """
     Implementation of the Multi-headed Attention sublayer in the Transformer block
     This sublayer is the same architecture in both the Encoder and Decoder blocks
+    The multi-headded attention sublayer comprises the scaled-dot product attention mechanism
     """
 
     def __init__(self, n_heads: int, d_model: int):
@@ -196,6 +197,10 @@ class PositionEmbedding(nn.Module):
 
 
 class Encoder(nn.Module):
+    """
+    Implement the Encoder block of nx Encoder layers. From input token embeddings + position embeddings and
+    Nx EncodingLayers to generating the output that will be taken up by the Decoder block
+    """
     def __init__(self, src_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device):
         """
 
@@ -317,7 +322,22 @@ class DecoderLayer(nn.Module):
 
 
 class Decoder(nn.Module):
+    """
+    Implement the Decoder block of nx DecodingLayers. From input token embeddings + position embeddings and
+    Nx DecodingLayers to generating the output that will be interpreted as the predicted translation
+    """
     def __init__(self, trg_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device):
+        """
+
+        :param trg_vocab_size:
+        :param d_model:
+        :param nx_layers:
+        :param n_heads:
+        :param d_ff:
+        :param dropout_p:
+        :param max_length:
+        :param device:
+        """
         super(Decoder, self).__init__()
         self.src_vocab_size = trg_vocab_size
         self.d_model = d_model
@@ -333,16 +353,17 @@ class Decoder(nn.Module):
         self.decoder_layers = nn.ModuleList([DecoderLayer(d_model, n_heads, d_ff, dropout_p)
                                              for _ in range(nx_layers)])
 
+        self.fc_out = nn.Linear(d_model, trg_vocab_size)
         self.dropout = nn.Dropout(p=dropout_p)
 
-    def forward(self, trg, src_encoder_output, trg_mask, src_mask) -> Tensor:
+    def forward(self, trg: Tensor, src_encoder_output: Tensor, trg_mask: Tensor, src_mask: Tensor) -> Tensor:
         """
 
         :param trg: src shape (N, trg_seq_len)
         :param src_encoder_output: src_input_embeddings shape (N, src_seq_len, d_model)
         :param trg_mask: shape (batch N, 1, trg_seq_len, trg_seq_len)
         :param src_mask: shape (N, 1, 1, src_seq_len)
-        :return:
+        :return: trg decoder ouput shape: (N, trg_seq_len, d_model)
         """
         # N refers to number of samples/sentences in input batch i.e. batch size
         N, trg_seq_len = trg.shape
@@ -363,7 +384,26 @@ class Decoder(nn.Module):
         for dec_layer in self.decoder_layers:
             trg_input_embeddings = dec_layer(trg_input_embeddings, src_encoder_output, trg_mask, src_mask)
 
-        return trg_input_embeddings
+        output = self.fc_out(trg_input_embeddings)
+
+        return output  # output shape: (N, trg_seq_len, trg_vocab_size)
+
+
+class Generator(nn.Module):
+    """
+    Implement the last linear layer and the softmax of the Transformer architecture
+    """
+    def __init__(self, d_model, trg_vocab_size):
+        super(Generator, self).__init__()
+        self.fc_proj = nn.Linear(d_model, trg_vocab_size)
+
+    def forward(self, output_from_decoder):
+        """
+
+        :param output_from_decoder: shape (N, trg_seq_len, d_model)
+        :return: output_from_decoder: shape (N, trg_seq_len, trg_vocab_size)???
+        """
+        return F.log_softmax(self.fc_proj(output_from_decoder), dim=-1)
 
 
 class Transformer(nn.Module):
@@ -374,6 +414,7 @@ class Transformer(nn.Module):
         self.decoder = Decoder(trg_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device)
         self.src_pad_idx = src_pad_idx
         self.trg_pad_idx = trg_pad_idx
+        # self.output_generator = Generator(d_model, trg_vocab_size)
         self.device = device
 
     def make_src_mask(self, src: Tensor):
@@ -409,7 +450,7 @@ class Transformer(nn.Module):
 
         :param src: src shape (N, src_seq_len)
         :param trg: trg shape (N, trg_seq_len)
-        :return:
+        :return: output shape (N, trg_seq_len, d_model)
         """
         src_mask = self.make_src_mask(src)
         trg_mask = self.make_trg_mask(trg)
@@ -420,9 +461,13 @@ class Transformer(nn.Module):
         # src_encoder_ouput shape: (N, src_seq_len, d_model)
 
         output = self.decoder(trg, src_encoder_ouput, trg_mask, src_mask)
-        # output shape: (N, trg_seq_len, d_model)
+        # output shape: (N, trg_seq_len, trg_vocab_size)
 
-        return output
+        # last linear layer and softmax to generate probabilities
+        # output_prob = self.output_generator(output)
+        # print(f'output_prob shape: {output_prob.shape}')
+
+        return output, F.softmax(output, dim=-1)  # , output_prob
 
 
 if __name__ == "__main__":
@@ -452,6 +497,8 @@ if __name__ == "__main__":
     print(f'src: {src}, src shape: {src.shape}')
     print(f'trg: {trg} trg shape: {trg.shape}')
     print(f'trg without last token {trg[:, :-1]}, trg without <eos> shape: {trg[:, :-1].shape}')
-    out = model(src, trg[:, :-1])
-    print(f'out.shape: {out.shape}')
-    print(out)
+    out, out_softmax = model(src, trg[:, :-1])
+    print(f'out.shape: {out.shape}, out_softmax.shape {out_softmax.shape}')
+    print(out, '\n', out_softmax)
+    print(out.argmax(2))
+    print(out_softmax.argmax(2))
