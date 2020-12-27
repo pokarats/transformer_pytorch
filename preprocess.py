@@ -11,7 +11,6 @@ from torchtext.data import Field, BucketIterator, TabularDataset
 from torchtext.data.utils import get_tokenizer
 from sklearn.model_selection import train_test_split
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -23,6 +22,8 @@ class Vocabulary:
         self.trg_tokenizer = get_tokenizer(tokenizer, language=trg_lang)
         self.raw_data = {src_lang: [line for line in lines_from_file_path(src_path)],
                          trg_lang: [line for line in lines_from_file_path(trg_path)]}
+        self.src_field = None
+        self.trg_field = None
 
     def partition_raw_data(self, num_sents):
         logger.info(f'Partition raw data to {num_sents} sentences.')
@@ -48,40 +49,40 @@ class Vocabulary:
     def to_json(data_frame, path, filename):
         data_frame.to_json(path / filename, orient='records', lines=True)
 
-    def make_datasets(self, data_path, train, val, test, max_len, pkl_path, src_pkl_file='de_Field.pkl',
+    def make_datasets(self, data_path, train_file, val_file, test_file, max_len, pkl_path, src_pkl_file='de_Field.pkl',
                       trg_pkl_file='en_Field.pkl', sos='<sos>', eos='<eos>', saved_field=False):
 
         if saved_field:
             logger.info(f'loading pickled fields from {src_pkl_file} and {trg_pkl_file}')
             with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
                     open(pkl_path / trg_pkl_file, mode='rb') as trg_pkl:
-                src = pickle.load(src_pkl)
-                trg = pickle.load(trg_pkl)
+                self.src_field = pickle.load(src_pkl)
+                self.trg_field = pickle.load(trg_pkl)
         else:
             # Field already includes default pad_token='<pad>', unknown='<unk>'
-            src = Field(sequential=True, use_vocab=True, init_token=sos, eos_token=eos, fix_length=max_len,
-                        tokenize=self.src_tokenizer, lower=True)
-            trg = Field(sequential=True, use_vocab=True, init_token=sos, eos_token=eos, fix_length=max_len,
-                        tokenize=self.trg_tokenizer, lower=True)
+            self.src_field = Field(sequential=True, use_vocab=True, init_token=sos, eos_token=eos, fix_length=max_len,
+                                   tokenize=self.src_tokenizer, lower=True)
+            self.trg_field = Field(sequential=True, use_vocab=True, init_token=sos, eos_token=eos, fix_length=max_len,
+                                   tokenize=self.trg_tokenizer, lower=True)
 
         # fields mapping
-        fields = {self.src_lang: (self.src_lang, src), self.trg_lang: (self.trg_lang, trg)}
+        fields = {self.src_lang: (self.src_lang, self.src_field), self.trg_lang: (self.trg_lang, self.trg_field)}
 
         # train, val, test datasets from the json files
-        train_data, val_data, test_data = TabularDataset.splits(path=data_path, train=train, validation=val, test=test,
-                                                                format='json', fields=fields)
+        train_data, val_data, test_data = TabularDataset.splits(path=data_path, train=train_file, validation=val_file,
+                                                                test=test_file, format='json', fields=fields)
 
         # build vocab from the train set
-        src.build_vocab(train_data)
-        trg.build_vocab(train_data)
+        self.src_field.build_vocab(train_data, min_freq=2)
+        self.trg_field.build_vocab(train_data, min_freq=2)
 
         # if no saved_field, pickle them for next time
         if not saved_field:
             logger.info(f'pickling fields to {src_pkl_file} and {trg_pkl_file}')
             with open(pkl_path / src_pkl_file, mode='wb') as src_pkl, \
                     open(pkl_path / trg_pkl_file, mode='wb') as trg_pkl:
-                pickle.dump(src, src_pkl, protocol=pickle.HIGHEST_PROTOCOL)
-                pickle.dump(trg, trg_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self.src_field, src_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self.trg_field, trg_pkl, protocol=pickle.HIGHEST_PROTOCOL)
 
         return train_data, val_data, test_data
 

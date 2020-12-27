@@ -1,6 +1,9 @@
 import pickle
 import time
 import math
+import transformer_model
+from utils import *
+import preprocess
 from pathlib import Path
 import logging
 import torch
@@ -95,3 +98,133 @@ def epoch_time(start_time: int, end_time: int):
     elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
     return elapsed_mins, elapsed_secs
 
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-data_path', type=str, help='data directory', default='data', required=True)
+    parser.add_argument('-src_data', type=str, help='src corpus filename', default='news-commentary-v8.de-en.de', required=True)
+    parser.add_argument('-trg_data', type=str, help='trg corpus filename', default='news-commentary-v8.de-en.en', required=True)
+    parser.add_argument('-src_lang', type=str, help='source language', default='de', required=True)
+    parser.add_argument('-trg_lang', type=str, help='target language', default='en', required=True)
+    parser.add_argument('-epochs', type=int, help='number of epochs to train for', default=2)
+    parser.add_argument('-d_model', type=int, help='d_model or hidden size', default=512)
+    parser.add_argument('-d_ff', type=int, help='d_ff or hidden size of FFN sublayer', default=2048)
+    parser.add_argument('-n_layers', type=int, help='number of encoder/decoder layers', default=6)
+    parser.add_argument('-heads', type=int, help='number of attention heads', default=8)
+    parser.add_argument('-dropout', type=float, help='value for dropout p parameter', default=0.1)
+    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=64)
+    parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
+    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=0.0001)
+    parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=80)
+    parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1000)
+    parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
+    parser.add_argument('-checkpoint', type=int, default=0)
+
+    args = parser.parse_args()
+    project_dir = Path(__file__).resolve().parent
+
+    # file management
+    data_path = project_dir / args.data_path
+    src_file = data_path / args.src_data
+    trg_file = data_path / args.trg_data
+    src_lang = args.src_lang
+    trg_lang = args.trg_lang
+    num_sents = args.num_sents
+    toy = args.toy
+
+    # hyperparameters
+    max_len = args.max_len
+    batch_size = args.batch_size
+    num_epochs = args.eprochs
+    d_model = args.d_model
+    d_ff = args.d_ff
+    nx_layers = args.n_layers
+    num_heads = args.heads
+    p_dropout = args.dropout
+    learning_rate = args.lr
+    clip = 1
+    max_diff = 1.5
+
+
+
+    # setup logging
+    log_filename = str(project_dir / 'log' / f'train_model_.log')
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=log_filename, filemode='a', format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+
+    logger.info(f'---------START----------')
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    logger.info(f'device: {device}')
+
+    # load and pre-process dataset
+    data = preprocess.Vocabulary(src_file, trg_file, tokenizer='spacy', src_lang=src_lang, trg_lang=trg_lang)
+    if toy:
+        data.partition_raw_data(num_sents)
+
+    training, val, test = data.make_train_val_test_splits(max_len=max_len, max_diff=max_diff, test_split_size=0.2)
+    data.to_json(training, data_path, 'training.json')
+    data.to_json(val, data_path, 'val.json')
+    data.to_json(test, data_path, 'test.json')
+
+    train_data, val_data, test_data = data.make_datasets(data_path, train_file='training.json', val_file='val.json',
+                                                         test_file='test.json', max_len=max_len,
+                                                         pkl_path=project_dir / 'pkl')
+
+    train_iter, val_iter, test_iter = data.make_batch_iterators(train_data, val_data, test_data,
+                                                                batch_size=batch_size, device=device)
+
+    # data parameters for model set-ups
+    src_vocab_size = len(data.src_field.vocab)
+    trg_vocab_size = len(data.trg_field.vocab)
+    src_pad_idx = data.src_field.vocab.stoi[data.src_field.pad_token]
+    trg_pad_idx = data.trg_field.vocab.stoi[data.trg_field.pad_token]
+
+    # set up model
+    best_valid_loss = float('inf')
+    model = transformer_model.Transformer(src_vocab_size=src_vocab_size,
+                                          trg_vocab_size=trg_vocab_size,
+                                          src_pad_idx=src_pad_idx,
+                                          trg_pad_idx=trg_pad_idx,
+                                          d_model=d_model,
+                                          nx_layers=nx_layers,
+                                          n_heads=num_heads,
+                                          d_ff=d_ff,
+                                          dropout_p=p_dropout,
+                                          max_length=max_len,
+                                          device=device)
+
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # CrossEntropyLoss has softmax builtin, so no need for the final softmax layer in model architecture
+    criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
+
+    # train model, track taining and validation losses
+    for epoch in tqdm(range(num_epochs)):
+
+        start_time = time.time()
+        logger.info(f'start training model, epoch {epoch + 1}')
+        train_loss = train(model, train_iter, optimizer, criterion, clip, device)
+        logger.info(f'start evaluating model, epoch {epoch + 1}')
+        valid_loss = evaluate(model, val_iter, criterion, device)
+
+        end_time = time.time()
+
+        epoch_mins, epoch_secs = epoch_time(start_time, end_time)
+
+        if valid_loss < best_valid_loss:
+            best_valid_loss = valid_loss
+            checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict(),}
+            save_checkpoint(checkpoint, project_dir / 'transformer_model.model_checkpoint.pth.tar')
+            torch.save(model.state_dict(), 'tut6-model.pt')
+
+        print(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
+        print(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
+        print(f'\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}')
+
+
+
+
+
+if __name__ == '__main__':
+    main()
