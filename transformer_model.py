@@ -403,7 +403,7 @@ class Generator(nn.Module):
         :param output_from_decoder: shape (N, trg_seq_len, d_model)
         :return: output_from_decoder: shape (N, trg_seq_len, trg_vocab_size)???
         """
-        return F.log_softmax(self.fc_proj(output_from_decoder), dim=-1)
+        return F.softmax(self.fc_proj(output_from_decoder), dim=-1)
 
 
 class Transformer(nn.Module):
