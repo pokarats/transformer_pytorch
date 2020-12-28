@@ -61,7 +61,7 @@ def translate_sentence(model, sentence, src_field, trg_field, device, src_lang='
         trg_tensor = torch.LongTensor(outputs_token_indices).unsqueeze(0).to(device)
 
         with torch.no_grad():
-            output, _ = model(sentence_tensor, trg_tensor)
+            output = model(sentence_tensor, trg_tensor)
 
         predicted_token_index = output.argmax(2)[:, -1].item()
         outputs_token_indices.append(predicted_token_index)
