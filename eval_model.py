@@ -168,15 +168,20 @@ def main():
     criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
     # loading trained model checkpoint (model and optimizer state dicts)
-    load_checkpoint(torch.load(model_path / 'transformer_model.pth.tar'), model, optimizer)
+    try:
+        load_checkpoint(torch.load(model_path / 'transformer_model.pth.tar'), model, optimizer)
+    except FileNotFoundError:
+        eval_log.exception(f'No saved models!! Terminating script.')
+        return
 
     # loss at testing time
     eval_log.info(f'evaluating model on test dataset')
-    test_loss = train_model.evaluate(model, test_iter, criterion)
+    test_loss = train_model.evaluate(model, test_iter, criterion, device)
     eval_log.info(f'| Test Loss: {test_loss:.3f} | Test PPL: {math.exp(test_loss):7.3f} |')
 
     # checking a predicted sentence from saved model
-    example_translation = translate_sentence(example_src, data.src_field, data.trg_field, model, device)
+    example_translation = translate_sentence(model, example_src, data.src_field, data.trg_field, device,
+                                             src_lang=data.src_lang, max_length=max_len)
     print(f'predicted example_trg from trained model = {example_translation}')
 
     # calculating BLEU score on the test dataset
