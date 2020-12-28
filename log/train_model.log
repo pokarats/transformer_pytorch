@@ -1,14 +1,53 @@
-12/28/2020 02:32:35 AM __main__ - INFO: ---------START----------
-12/28/2020 02:32:35 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 128	num_epochs: 2
+12/28/2020 05:17:35 AM __main__ - INFO: ---------START----------
+12/28/2020 05:17:35 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 2
 d_model: 512	d_ff: 2048	nx_layers: 6
-num_heads: 8	dropout: 0.1	learning rate: 0.0003
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
 clip: 1	max_diff: 1.5	toy run: True
-12/28/2020 02:32:35 AM __main__ - INFO: device: cpu
-12/28/2020 02:32:37 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 02:32:37 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 02:32:38 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 02:32:38 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 02:32:40 AM preprocess - INFO: making batch iterators from data sets
-12/28/2020 02:32:40 AM transformer_model - INFO: initializing Transformer model
-12/28/2020 02:32:40 AM __main__ - INFO: start training model, epoch 1
+12/28/2020 05:17:35 AM __main__ - INFO: device: cpu
+12/28/2020 05:17:38 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 05:17:38 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 05:17:38 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 05:17:38 AM __main__ - ERROR: .json files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "/Users/noonscape/Documents/Transformer/practice/transformer/train_model.py", line 222, in main
+    pkl_path=pkl_path)
+  File "/Users/noonscape/Documents/Transformer/practice/transformer/preprocess.py", line 75, in make_datasets
+    test=test_file, format='json', fields=fields)
+  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 78, in splits
+    os.path.join(path, train), **kwargs)
+  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 251, in __init__
+    with io.open(os.path.expanduser(path), encoding="utf8") as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/noonscape/Documents/Transformer/practice/transformer/data/training.json'
+12/28/2020 05:17:38 AM preprocess - INFO: making train, val, test splits
+12/28/2020 05:17:38 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
+12/28/2020 05:17:39 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/28/2020 05:17:41 AM preprocess - INFO: making batch iterators from data sets
+12/28/2020 05:17:41 AM transformer_model - INFO: initializing Transformer model
+12/28/2020 05:17:42 AM __main__ - INFO: start training model, epoch 1
+12/28/2020 05:20:10 AM __main__ - INFO: ---------START----------
+12/28/2020 05:20:10 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 2
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: False
+12/28/2020 05:20:10 AM __main__ - INFO: device: cpu
+12/28/2020 05:20:13 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 05:20:13 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 05:20:13 AM __main__ - ERROR: .json files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "/Users/noonscape/Documents/Transformer/practice/transformer/train_model.py", line 222, in main
+    pkl_path=pkl_path)
+  File "/Users/noonscape/Documents/Transformer/practice/transformer/preprocess.py", line 75, in make_datasets
+    test=test_file, format='json', fields=fields)
+  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 78, in splits
+    os.path.join(path, train), **kwargs)
+  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 251, in __init__
+    with io.open(os.path.expanduser(path), encoding="utf8") as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/noonscape/Documents/Transformer/practice/transformer/data/training.json'
+12/28/2020 05:20:13 AM preprocess - INFO: making train, val, test splits
+12/28/2020 05:20:14 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
+12/28/2020 05:21:52 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/28/2020 05:21:55 AM preprocess - INFO: making batch iterators from data sets
+12/28/2020 05:21:55 AM transformer_model - INFO: initializing Transformer model
+12/28/2020 05:21:56 AM __main__ - INFO: start training model, epoch 1

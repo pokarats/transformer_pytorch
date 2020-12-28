@@ -49,7 +49,7 @@ def train(model, iterator, optimizer, criterion, clip, device):
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
         optimizer.step()
 
-        epoch_loss += loss.item()
+        epoch_loss += float(loss.item())
 
     return epoch_loss / len(iterator)
 
@@ -82,7 +82,7 @@ def evaluate(model, iterator, criterion, device):
 
             loss = criterion(output, trg)
 
-            epoch_loss += loss.item()
+            epoch_loss += float(loss.item())
 
     return epoch_loss / len(iterator)
 
@@ -110,15 +110,15 @@ def main():
     parser.add_argument('-n_layers', type=int, help='number of encoder/decoder layers', default=6)
     parser.add_argument('-heads', type=int, help='number of attention heads', default=8)
     parser.add_argument('-dropout', type=float, help='value for dropout p parameter', default=0.1)
-    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=128)
+    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=64)
     # parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
-    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=3e-4)
+    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=5e-4)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=150)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
-    parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
+    parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=False)
     parser.add_argument('-debug', type=bool, help='turn logging to debug mode to display more info', default=False)
     parser.add_argument('-save_model', type=bool, help='True to save model checkpoint', default=False)
-    parser.add_argument('-override', type=bool, help='override existing log file', default=True)
+    parser.add_argument('-override', type=bool, help='override existing log file', default=False)
 
     args = parser.parse_args()
 
@@ -181,7 +181,10 @@ def main():
     # setup logging
     log_filename = str(log_path / 'train_model.log')
     model_log = logging.getLogger(__name__)
-    logging_filemode = 'w' if override else 'a'
+    if override:
+        logging_filemode = 'w+'
+    else:
+        logging_filemode = 'a+'
     logging.basicConfig(filename=log_filename, filemode=logging_filemode,
                         format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
@@ -203,7 +206,8 @@ def main():
                    f'learning rate: {learning_rate}\n'
                    f'clip: {clip}\t'
                    f'max_diff: {max_diff}\t'
-                   f'toy run: {toy}')
+                   f'toy run: {toy}\n'
+                   f'override: {override}')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model_log.info(f'device: {device}')
@@ -256,7 +260,7 @@ def main():
     # optimizer parameters are according to the paper
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.98), eps=1e-9)
     # instead of Noam lr scheduler/decay as in the paper, use PyTorch lr scheduler instead for simplicity
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=2, verbose=True)
     # CrossEntropyLoss has softmax built in, so no need for the final softmax layer in model architecture
     criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
@@ -266,7 +270,7 @@ def main():
         start_time = time.time()
         model_log.info(f'start training model, epoch {epoch + 1}')
         train_loss = train(model, train_iter, optimizer, criterion, clip, device)
-        model_log.info(f'start evaluating model, epoch {epoch + 1}')
+        model_log.info(f'start evaluating model on validation set, epoch {epoch + 1}')
         valid_loss = evaluate(model, val_iter, criterion, device)
         # update lr for next epoch with scheduler based on valid_loss stagnation
         scheduler.step(valid_loss)
