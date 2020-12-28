@@ -7,11 +7,14 @@ I follow the implementation examples in the following resources:
 I try to balance between adhering to the variable names in the paper and using plain English for ease of comprehension
 """
 import math
-
+import logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
+
+
+logger = logging.getLogger(__name__)
 
 
 class MultiHeadedAttention(nn.Module):
@@ -452,6 +455,10 @@ class Transformer(nn.Module):
         :param trg: trg shape (N, trg_seq_len)
         :return: output shape (N, trg_seq_len, d_model)
         """
+
+        logger.debug(f'src shape: {src.shape}')
+        logger.debug(f'trg shape: {trg.shape}')
+
         src_mask = self.make_src_mask(src)
         trg_mask = self.make_trg_mask(trg)
         # src_mask shape: (N, 1, 1, src_seq_len]
@@ -465,7 +472,7 @@ class Transformer(nn.Module):
 
         # last linear layer and softmax to generate probabilities
         # output_prob = self.output_generator(output)
-        # print(f'output_prob shape: {output_prob.shape}')
+        logger.debug(f'Transformer model output shape: {output.shape}')
 
         return output, F.softmax(output, dim=-1)  # , output_prob
 

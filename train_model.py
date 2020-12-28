@@ -1,4 +1,3 @@
-import pickle
 import time
 import math
 import transformer_model
@@ -9,8 +8,6 @@ import logging
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-from torchtext.data import Field, BucketIterator, TabularDataset
 from tqdm import tqdm
 import argparse
 
@@ -20,7 +17,7 @@ def train(model, iterator, optimizer, criterion, clip, device):
 
     epoch_loss = 0
 
-    for batch_idx, batch in enumerate(iterator):
+    for batch_idx, batch in enumerate(tqdm(iterator)):
         # torchtext bucket iterator generates batches of shape (seq leng, N samples i.e. batch size)
         # Transformer expects (N batch size, seq len) shape inputs
         src = batch.src.transpose(0, 1).to(device)
@@ -64,7 +61,7 @@ def evaluate(model, iterator, criterion, device):
     epoch_loss = 0
 
     with torch.no_grad():
-        for batch_idx, batch in enumerate(iterator):
+        for batch_idx, batch in enumerate(tqdm(iterator)):
             # torchtext bucket iterator generates batches of shape (seq leng, N samples i.e. batch size)
             # Transformer expects (N batch size, seq len) shape inputs
             src = batch.src.transpose(0, 1).to(device)
@@ -216,9 +213,9 @@ def main():
             checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
             save_checkpoint(checkpoint, project_dir / 'saved_models' / 'transformer_model.pth.tar')
 
-        print(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
-        print(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
-        print(f'\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}')
+        model_log.info(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
+        model_log.info(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
+        model_log.info(f'\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}')
     model_log.info(f'---------END----------')
 
 
