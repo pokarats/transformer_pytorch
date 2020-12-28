@@ -60,10 +60,11 @@ class Vocabulary:
                 self.trg_field = pickle.load(trg_pkl)
         else:
             # Field already includes default pad_token='<pad>', unknown='<unk>'
+            # batch_first=True so that dim 0 is batch size, Transformer expects inputs shape: (batch_size, seq len)
             self.src_field = Field(sequential=True, use_vocab=True, init_token=sos, eos_token=eos, fix_length=max_len,
-                                   tokenize=self.src_tokenizer, lower=True)
+                                   tokenize=self.src_tokenizer, lower=True, batch_first=True)
             self.trg_field = Field(sequential=True, use_vocab=True, init_token=sos, eos_token=eos, fix_length=max_len,
-                                   tokenize=self.trg_tokenizer, lower=True)
+                                   tokenize=self.trg_tokenizer, lower=True, batch_first=True)
 
         # fields mapping
         fields = {self.src_lang: ('src', self.src_field), self.trg_lang: ('trg', self.trg_field)}

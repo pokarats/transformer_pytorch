@@ -18,10 +18,9 @@ def train(model, iterator, optimizer, criterion, clip, device):
     epoch_loss = 0
 
     for batch_idx, batch in enumerate(tqdm(iterator)):
-        # torchtext bucket iterator generates batches of shape (seq leng, N samples i.e. batch size)
         # Transformer expects (N batch size, seq len) shape inputs
-        src = batch.src.transpose(0, 1).to(device)
-        trg = batch.trg.transpose(0, 1).to(device)
+        src = batch.src.to(device)
+        trg = batch.trg.to(device)
 
         optimizer.zero_grad()
 
@@ -62,10 +61,9 @@ def evaluate(model, iterator, criterion, device):
 
     with torch.no_grad():
         for batch_idx, batch in enumerate(tqdm(iterator)):
-            # torchtext bucket iterator generates batches of shape (seq leng, N samples i.e. batch size)
             # Transformer expects (N batch size, seq len) shape inputs
-            src = batch.src.transpose(0, 1).to(device)
-            trg = batch.trg.transpose(0, 1).to(device)
+            src = batch.src.to(device)
+            trg = batch.trg.to(device)
 
             output, _ = model(src, trg[:, :-1])
             # output = [batch size, trg len - 1, output dim]
@@ -111,10 +109,11 @@ def main():
     parser.add_argument('-dropout', type=float, help='value for dropout p parameter', default=0.1)
     parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=64)
     parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
-    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=0.0001)
+    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=0.0005)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=80)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
     parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
+    parser.add_argument('-debug', type=bool, help='turn logging to debug mode to display more info', default=False)
     parser.add_argument('-checkpoint', type=int, default=0)
 
     args = parser.parse_args()
@@ -145,7 +144,7 @@ def main():
     # setup logging
     log_filename = str(project_dir / 'log' / f'train_model.log')
     model_log = logging.getLogger(__name__)
-    logging.basicConfig(filename=log_filename, filemode='a', format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
+    logging.basicConfig(filename=log_filename, filemode='w', format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
     model_log.info(f'---------START----------')
@@ -190,7 +189,8 @@ def main():
                                           max_length=max_len,
                                           device=device).to(device)
 
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # optimizer parameters are according to the paper
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.98), eps=1e-9)
     # CrossEntropyLoss has softmax built in, so no need for the final softmax layer in model architecture
     criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
