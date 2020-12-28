@@ -97,7 +97,10 @@ def main():
     # setup logging
     log_filename = str(log_path / 'eval_model.log')
     eval_log = logging.getLogger(__name__)
-    logging_filemode = 'w' if override else 'a'
+    if override:
+        logging_filemode = 'w+'
+    else:
+        logging_filemode = 'a+'
     logging.basicConfig(filename=log_filename, filemode=logging_filemode,
                         format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
