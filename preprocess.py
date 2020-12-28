@@ -31,6 +31,7 @@ class Vocabulary:
         self.raw_data[self.trg_lang] = self.raw_data[self.trg_lang][:num_sents]
 
     def make_train_val_test_splits(self, max_len, max_diff, test_split_size=0.2):
+        logger.info(f'making train, val, test splits')
         # prune raw data for max seq len
         df = pd.DataFrame(self.raw_data, columns=[self.src_lang, self.trg_lang])
         df['src_len'] = df[self.src_lang].str.count(' ')
@@ -89,6 +90,7 @@ class Vocabulary:
 
     @staticmethod
     def make_batch_iterators(train_data, val_data, test_data, batch_size, device):
+        logger.info(f'making batch iterators from data sets')
         # batch iterator
         train_iterator, val_iterator, test_iterator = BucketIterator.splits((train_data, val_data, test_data),
                                                                             batch_size=batch_size, device=device,

@@ -130,6 +130,29 @@ def main():
     model_path = project_dir / args.model_path
 
     # mkdir if dir donl't exist
+    try:
+        log_path.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        print(f'{log_path} is already there')
+        pass
+    else:
+        print(f'{log_path} was created to store train_model.log file')
+
+    try:
+        pkl_path.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        print(f'{pkl_path} is already there')
+        pass
+    else:
+        print(f'{pkl_path} was created to store .pkl files')
+
+    try:
+        model_path.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        print(f'{model_path} is already there')
+        pass
+    else:
+        print(f'{model_path} was created to store checkpoint files')
 
     # parameters to run the script
     src_file = data_path / args.src_data
@@ -189,14 +212,22 @@ def main():
     if toy:
         data.partition_raw_data(num_sents)
 
-    training, val, test = data.make_train_val_test_splits(max_len=max_len, max_diff=max_diff, test_split_size=0.2)
-    data.to_json(training, data_path, 'training.json')
-    data.to_json(val, data_path, 'val.json')
-    data.to_json(test, data_path, 'test.json')
+    try:
+        train_data, val_data, test_data = data.make_datasets(data_path, train_file='training.json', val_file='val.json',
+                                                             test_file='test.json', max_len=max_len,
+                                                             pkl_path=pkl_path)
+    except FileNotFoundError:
+        model_log.exception(f'.json files not found! need to remake train, val, test split to .json')
 
-    train_data, val_data, test_data = data.make_datasets(data_path, train_file='training.json', val_file='val.json',
-                                                         test_file='test.json', max_len=max_len,
-                                                         pkl_path=pkl_path)
+        training, val, test = data.make_train_val_test_splits(max_len=max_len, max_diff=max_diff, test_split_size=0.2)
+
+        data.to_json(training, data_path, 'training.json')
+        data.to_json(val, data_path, 'val.json')
+        data.to_json(test, data_path, 'test.json')
+
+        train_data, val_data, test_data = data.make_datasets(data_path, train_file='training.json', val_file='val.json',
+                                                             test_file='test.json', max_len=max_len,
+                                                             pkl_path=pkl_path)
 
     train_iter, val_iter, test_iter = data.make_batch_iterators(train_data, val_data, test_data,
                                                                 batch_size=batch_size, device=device)
