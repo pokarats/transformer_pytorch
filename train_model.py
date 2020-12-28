@@ -40,7 +40,7 @@ def train(model, iterator, optimizer, criterion, clip, device):
         # Output is of shape (batch_size, trg len - 1, output_dim) but Cross Entropy Loss
         # doesn't take input in that form.
         # Need to reshape to: output seq * batch_size to send to cost function
-        # also don't need <sos> token, so slice from pos 1:
+        # also don't need <sos> token, so slice trg from pos 1:
         output = output.reshape(-1, output_dim)
         trg = trg[:, 1:].reshape(-1)
         # output = [batch size * trg len - 1, output dim]
@@ -92,7 +92,7 @@ def evaluate(model, iterator, criterion, device):
     return epoch_loss / len(iterator)
 
 
-def epoch_time(start_time: int, end_time: int):
+def epoch_time(start_time: float, end_time: float):
     elapsed_time = end_time - start_time
     elapsed_mins = int(elapsed_time / 60)
     elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
@@ -101,11 +101,11 @@ def epoch_time(start_time: int, end_time: int):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-data_path', type=str, help='data directory', default='data', required=True)
-    parser.add_argument('-src_data', type=str, help='src corpus filename', default='news-commentary-v8.de-en.de', required=True)
-    parser.add_argument('-trg_data', type=str, help='trg corpus filename', default='news-commentary-v8.de-en.en', required=True)
-    parser.add_argument('-src_lang', type=str, help='source language', default='de', required=True)
-    parser.add_argument('-trg_lang', type=str, help='target language', default='en', required=True)
+    parser.add_argument('-data_path', type=str, help='data directory', default='data')
+    parser.add_argument('-src_data', type=str, help='src corpus filename', default='news-commentary-v8.de-en.de')
+    parser.add_argument('-trg_data', type=str, help='trg corpus filename', default='news-commentary-v8.de-en.en')
+    parser.add_argument('-src_lang', type=str, help='source language', default='de')
+    parser.add_argument('-trg_lang', type=str, help='target language', default='en')
     parser.add_argument('-epochs', type=int, help='number of epochs to train for', default=2)
     parser.add_argument('-d_model', type=int, help='d_model or hidden size', default=512)
     parser.add_argument('-d_ff', type=int, help='d_ff or hidden size of FFN sublayer', default=2048)
@@ -116,14 +116,14 @@ def main():
     parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
     parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=0.0001)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=80)
-    parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1000)
+    parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
     parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
     parser.add_argument('-checkpoint', type=int, default=0)
 
     args = parser.parse_args()
-    project_dir = Path(__file__).resolve().parent
 
     # file management
+    project_dir = Path(__file__).resolve().parent
     data_path = project_dir / args.data_path
     src_file = data_path / args.src_data
     trg_file = data_path / args.trg_data
@@ -132,10 +132,10 @@ def main():
     num_sents = args.num_sents
     toy = args.toy
 
-    # hyperparameters
+    # hyper-parameters
     max_len = args.max_len
     batch_size = args.batch_size
-    num_epochs = args.eprochs
+    num_epochs = args.epochs
     d_model = args.d_model
     d_ff = args.d_ff
     nx_layers = args.n_layers
@@ -145,18 +145,16 @@ def main():
     clip = 1
     max_diff = 1.5
 
-
-
     # setup logging
-    log_filename = str(project_dir / 'log' / f'train_model_.log')
-    logger = logging.getLogger(__name__)
+    log_filename = str(project_dir / 'log' / f'train_model.log')
+    model_log = logging.getLogger(__name__)
     logging.basicConfig(filename=log_filename, filemode='a', format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
-    logger.info(f'---------START----------')
+    model_log.info(f'---------START----------')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    logger.info(f'device: {device}')
+    model_log.info(f'device: {device}')
 
     # load and pre-process dataset
     data = preprocess.Vocabulary(src_file, trg_file, tokenizer='spacy', src_lang=src_lang, trg_lang=trg_lang)
@@ -193,19 +191,19 @@ def main():
                                           d_ff=d_ff,
                                           dropout_p=p_dropout,
                                           max_length=max_len,
-                                          device=device)
+                                          device=device).to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    # CrossEntropyLoss has softmax builtin, so no need for the final softmax layer in model architecture
+    # CrossEntropyLoss has softmax built in, so no need for the final softmax layer in model architecture
     criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
     # train model, track taining and validation losses
     for epoch in tqdm(range(num_epochs)):
 
         start_time = time.time()
-        logger.info(f'start training model, epoch {epoch + 1}')
+        model_log.info(f'start training model, epoch {epoch + 1}')
         train_loss = train(model, train_iter, optimizer, criterion, clip, device)
-        logger.info(f'start evaluating model, epoch {epoch + 1}')
+        model_log.info(f'start evaluating model, epoch {epoch + 1}')
         valid_loss = evaluate(model, val_iter, criterion, device)
 
         end_time = time.time()
@@ -213,17 +211,15 @@ def main():
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
         if valid_loss < best_valid_loss:
+            model_log.info(f'saving best model checkpoint')
             best_valid_loss = valid_loss
-            checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict(),}
-            save_checkpoint(checkpoint, project_dir / 'transformer_model.model_checkpoint.pth.tar')
-            torch.save(model.state_dict(), 'tut6-model.pt')
+            checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
+            save_checkpoint(checkpoint, project_dir / 'saved_models' / 'transformer_model.pth.tar')
 
         print(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}')
-
-
-
+    model_log.info(f'---------END----------')
 
 
 if __name__ == '__main__':

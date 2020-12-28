@@ -1,0 +1,24 @@
+12/27/2020 09:09:32 PM __main__ - INFO: ---------START----------
+12/27/2020 09:09:32 PM __main__ - INFO: device: cpu
+12/27/2020 09:09:34 PM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/27/2020 09:09:34 PM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/27/2020 09:09:35 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/27/2020 09:09:35 PM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
+12/27/2020 09:09:36 PM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/27/2020 09:09:38 PM __main__ - INFO: start training model, epoch 1
+12/27/2020 09:12:56 PM __main__ - INFO: ---------START----------
+12/27/2020 09:12:56 PM __main__ - INFO: device: cpu
+12/27/2020 09:12:58 PM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/27/2020 09:12:59 PM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/27/2020 09:12:59 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/27/2020 09:12:59 PM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
+12/27/2020 09:13:00 PM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/27/2020 09:13:03 PM __main__ - INFO: start training model, epoch 1
+12/27/2020 09:17:04 PM __main__ - INFO: start evaluating model, epoch 1
+12/27/2020 09:17:11 PM __main__ - INFO: saving best model checkpoint
+12/27/2020 09:17:11 PM utils - INFO: Saving checkpoint to /Users/noonscape/Documents/Transformer/practice/transformer/saved_models/transformer_model.pth.tar
+12/27/2020 09:17:12 PM __main__ - INFO: start training model, epoch 2
+12/27/2020 09:21:01 PM __main__ - INFO: start evaluating model, epoch 2
+12/27/2020 09:21:08 PM __main__ - INFO: saving best model checkpoint
+12/27/2020 09:21:08 PM utils - INFO: Saving checkpoint to /Users/noonscape/Documents/Transformer/practice/transformer/saved_models/transformer_model.pth.tar
+12/27/2020 09:21:08 PM __main__ - INFO: ---------END----------

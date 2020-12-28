@@ -66,7 +66,7 @@ class Vocabulary:
                                    tokenize=self.trg_tokenizer, lower=True)
 
         # fields mapping
-        fields = {self.src_lang: (self.src_lang, self.src_field), self.trg_lang: (self.trg_lang, self.trg_field)}
+        fields = {self.src_lang: ('src', self.src_field), self.trg_lang: ('trg', self.trg_field)}
 
         # train, val, test datasets from the json files
         train_data, val_data, test_data = TabularDataset.splits(path=data_path, train=train_file, validation=val_file,
