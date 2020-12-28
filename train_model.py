@@ -181,7 +181,8 @@ def main():
     # setup logging
     log_filename = str(log_path / 'train_model.log')
     model_log = logging.getLogger(__name__)
-    logging.basicConfig(filename=log_filename, filemode='w' if override else 'a',
+    logging_filemode = 'w' if override else 'a'
+    logging.basicConfig(filename=log_filename, filemode=logging_filemode,
                         format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
