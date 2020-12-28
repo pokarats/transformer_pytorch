@@ -27,7 +27,7 @@ def train(model, iterator, optimizer, criterion, clip, device):
         # model to predict the <eos> token in trg but not have it be an input into our model
         # slice the <eos> token off the end of the sequence.
         # forward pass
-        output, _ = model(src, trg[:, :-1])
+        output = model(src, trg[:, :-1])
 
         # output = [batch size, trg len - 1, output dim == trg vocab size]
         # trg = [batch size, trg len]
@@ -65,7 +65,7 @@ def evaluate(model, iterator, criterion, device):
             src = batch.src.to(device)
             trg = batch.trg.to(device)
 
-            output, _ = model(src, trg[:, :-1])
+            output = model(src, trg[:, :-1])
             # output = [batch size, trg len - 1, output dim]
             # trg = [batch size, trg len]
 
