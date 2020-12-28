@@ -1,0 +1,5 @@
+12/28/2020 07:56:49 AM __main__ - INFO: device: cpu
+12/28/2020 07:56:51 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:56:52 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:56:52 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:56:52 AM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl

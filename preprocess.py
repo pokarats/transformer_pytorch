@@ -54,11 +54,13 @@ class Vocabulary:
                       trg_pkl_file='en_Field.pkl', sos='<sos>', eos='<eos>', saved_field=False):
 
         if saved_field:
-            logger.info(f'loading pickled fields from {src_pkl_file} and {trg_pkl_file}')
-            with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
-                    open(pkl_path / trg_pkl_file, mode='rb') as trg_pkl:
-                self.src_field = pickle.load(src_pkl)
-                self.trg_field = pickle.load(trg_pkl)
+            logger.info(f'loading saved Fields from {src_pkl_file} and {trg_pkl_file}')
+            self.src_field = torch.load(pkl_path / src_pkl_file)
+            self.trg_field = torch.load(pkl_path / trg_pkl_file)
+            # with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
+            #        open(pkl_path / trg_pkl_file, mode='rb') as trg_pkl:
+            #    self.src_field = pickle.load(src_pkl)
+            #    self.trg_field = pickle.load(trg_pkl)
         else:
             # Field already includes default pad_token='<pad>', unknown='<unk>'
             # batch_first=True so that dim 0 is batch size, Transformer expects inputs shape: (batch_size, seq len)
@@ -74,17 +76,19 @@ class Vocabulary:
         train_data, val_data, test_data = TabularDataset.splits(path=data_path, train=train_file, validation=val_file,
                                                                 test=test_file, format='json', fields=fields)
 
-        # build vocab from the train set
-        self.src_field.build_vocab(train_data, min_freq=2)
-        self.trg_field.build_vocab(train_data, min_freq=2)
-
+        # build vocab from the train set unless loading from saved vocab
         # if no saved_field, pickle them for next time
         if not saved_field:
-            logger.info(f'pickling fields to {src_pkl_file} and {trg_pkl_file}')
-            with open(pkl_path / src_pkl_file, mode='wb') as src_pkl, \
-                    open(pkl_path / trg_pkl_file, mode='wb') as trg_pkl:
-                pickle.dump(self.src_field, src_pkl, protocol=pickle.HIGHEST_PROTOCOL)
-                pickle.dump(self.trg_field, trg_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+            self.src_field.build_vocab(train_data, min_freq=2)
+            self.trg_field.build_vocab(train_data, min_freq=2)
+
+            logger.info(f'saving Fields to {src_pkl_file} and {trg_pkl_file}')
+            torch.save(self.trg_field, pkl_path / src_pkl_file)
+            torch.save(self.trg_field, pkl_path / trg_pkl_file)
+            # with open(pkl_path / src_pkl_file, mode='wb') as src_pkl, \
+            #      open(pkl_path / trg_pkl_file, mode='wb') as trg_pkl:
+            #  pickle.dump(self.src_field, src_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+            #  pickle.dump(self.trg_field, trg_pkl, protocol=pickle.HIGHEST_PROTOCOL)
 
         return train_data, val_data, test_data
 

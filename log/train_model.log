@@ -51,3 +51,83 @@ FileNotFoundError: [Errno 2] No such file or directory: '/Users/noonscape/Docume
 12/28/2020 05:21:55 AM preprocess - INFO: making batch iterators from data sets
 12/28/2020 05:21:55 AM transformer_model - INFO: initializing Transformer model
 12/28/2020 05:21:56 AM __main__ - INFO: start training model, epoch 1
+12/28/2020 06:49:05 AM __main__ - INFO: ---------START----------
+12/28/2020 06:49:05 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 2
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 06:49:05 AM __main__ - INFO: device: cpu
+12/28/2020 06:49:07 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 06:49:07 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 06:49:07 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 06:49:07 AM __main__ - ERROR: .json files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "/Users/noonscape/Documents/Transformer/practice/transformer/train_model.py", line 224, in main
+    pkl_path=pkl_path)
+  File "/Users/noonscape/Documents/Transformer/practice/transformer/preprocess.py", line 75, in make_datasets
+    test=test_file, format='json', fields=fields)
+  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 78, in splits
+    os.path.join(path, train), **kwargs)
+  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 251, in __init__
+    with io.open(os.path.expanduser(path), encoding="utf8") as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/noonscape/Documents/Transformer/practice/transformer/data/training.json'
+12/28/2020 06:49:07 AM preprocess - INFO: making train, val, test splits
+12/28/2020 06:49:07 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
+12/28/2020 06:49:08 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/28/2020 06:49:10 AM __main__ - INFO: pickling train, val, test datasets
+12/28/2020 06:50:32 AM __main__ - INFO: ---------START----------
+12/28/2020 06:50:32 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 2
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 06:50:32 AM __main__ - INFO: device: cpu
+12/28/2020 06:50:34 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 06:50:34 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 06:50:34 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 06:50:35 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/28/2020 06:50:37 AM __main__ - INFO: pickling train, val, test datasets
+12/28/2020 07:02:24 AM __main__ - INFO: ---------START----------
+12/28/2020 07:02:24 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 2
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 07:02:24 AM __main__ - INFO: device: cpu
+12/28/2020 07:02:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:02:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:02:27 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:02:28 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/28/2020 07:02:30 AM __main__ - INFO: pickling train, val, test datasets
+12/28/2020 07:34:12 AM __main__ - INFO: ---------START----------
+12/28/2020 07:34:12 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 2
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 07:34:12 AM __main__ - INFO: device: cpu
+12/28/2020 07:34:14 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:34:15 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:34:15 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:34:16 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/28/2020 07:34:17 AM __main__ - INFO: saving train, val, test datasets
+12/28/2020 07:46:25 AM __main__ - INFO: ---------START----------
+12/28/2020 07:46:25 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 2
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 07:46:25 AM __main__ - INFO: device: cpu
+12/28/2020 07:46:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:46:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:46:28 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:46:28 AM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 07:46:31 AM preprocess - INFO: making batch iterators from data sets
+12/28/2020 07:46:31 AM transformer_model - INFO: initializing Transformer model
+12/28/2020 07:46:32 AM __main__ - INFO: start training model, epoch 1

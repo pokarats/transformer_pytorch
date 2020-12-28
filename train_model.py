@@ -1,3 +1,6 @@
+import random
+
+import dill as pickle
 import time
 import math
 import transformer_model
@@ -115,10 +118,11 @@ def main():
     parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=5e-4)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=150)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
-    parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=False)
+    parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
     parser.add_argument('-debug', type=bool, help='turn logging to debug mode to display more info', default=False)
-    parser.add_argument('-save_model', type=bool, help='True to save model checkpoint', default=False)
+    parser.add_argument('-save_model', type=bool, help='True to save model checkpoint', default=True)
     parser.add_argument('-override', type=bool, help='override existing log file', default=False)
+    parser.add_argument('-seed', type=int, help='seed for the iterator random shuffling repeat', default=1234)
 
     args = parser.parse_args()
 
@@ -164,6 +168,7 @@ def main():
     debug = args.debug
     save_model = args.save_model
     override = args.override
+    seed = args.seed
 
     # hyper-parameters
     max_len = args.max_len
@@ -220,9 +225,9 @@ def main():
     try:
         train_data, val_data, test_data = data.make_datasets(data_path, train_file='training.json', val_file='val.json',
                                                              test_file='test.json', max_len=max_len,
-                                                             pkl_path=pkl_path)
+                                                             pkl_path=pkl_path, saved_field=True)
     except FileNotFoundError:
-        model_log.exception(f'.json files not found! need to remake train, val, test split to .json')
+        model_log.exception(f'.json or .pkl files not found! need to remake train, val, test split to .json')
 
         training, val, test = data.make_train_val_test_splits(max_len=max_len, max_diff=max_diff, test_split_size=0.2)
 
@@ -234,6 +239,9 @@ def main():
                                                              test_file='test.json', max_len=max_len,
                                                              pkl_path=pkl_path)
 
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
     train_iter, val_iter, test_iter = data.make_batch_iterators(train_data, val_data, test_data,
                                                                 batch_size=batch_size, device=device)
 
@@ -288,7 +296,7 @@ def main():
 
         model_log.info(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
         model_log.info(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
-        model_log.info(f'\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}')
+        model_log.info(f'\tVal. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}')
     model_log.info(f'---------END----------')
 
 
