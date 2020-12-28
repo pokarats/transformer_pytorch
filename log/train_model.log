@@ -1,18 +1,14 @@
-12/28/2020 12:48:05 AM __main__ - INFO: ---------START----------
-12/28/2020 12:48:05 AM __main__ - INFO: device: cpu
-12/28/2020 12:48:08 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 12:48:08 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 12:48:08 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 12:48:08 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
-12/28/2020 12:48:09 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 12:48:12 AM __main__ - INFO: start training model, epoch 1
-12/28/2020 12:59:41 AM __main__ - INFO: start evaluating model, epoch 1
-12/28/2020 12:59:56 AM __main__ - INFO: Epoch: 01 | Time: 11m 43s
-12/28/2020 12:59:56 AM __main__ - INFO: 	Train Loss: 6.111 | Train PPL: 450.764
-12/28/2020 12:59:56 AM __main__ - INFO: 	 Val. Loss: 4.898 |  Val. PPL: 134.078
-12/28/2020 12:59:56 AM __main__ - INFO: start training model, epoch 2
-12/28/2020 01:10:41 AM __main__ - INFO: start evaluating model, epoch 2
-12/28/2020 01:10:58 AM __main__ - INFO: Epoch: 02 | Time: 11m 2s
-12/28/2020 01:10:58 AM __main__ - INFO: 	Train Loss: 5.641 | Train PPL: 281.670
-12/28/2020 01:10:58 AM __main__ - INFO: 	 Val. Loss: 4.872 |  Val. PPL: 130.613
-12/28/2020 01:10:58 AM __main__ - INFO: ---------END----------
+12/28/2020 01:42:36 AM __main__ - INFO: ---------START----------
+12/28/2020 01:42:36 AM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 128	num_epochs: 2
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0003
+clip: 1	max_diff: 1.5	toy run: True
+12/28/2020 01:42:36 AM __main__ - INFO: device: cpu
+12/28/2020 01:42:39 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 01:42:39 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 01:42:40 AM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 01:42:40 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
+12/28/2020 01:42:41 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
+12/28/2020 01:42:42 AM transformer_model - INFO: initializing Transformer model
+12/28/2020 01:42:43 AM __main__ - INFO: start training model, epoch 1

@@ -110,14 +110,15 @@ def main():
     parser.add_argument('-n_layers', type=int, help='number of encoder/decoder layers', default=6)
     parser.add_argument('-heads', type=int, help='number of attention heads', default=8)
     parser.add_argument('-dropout', type=float, help='value for dropout p parameter', default=0.1)
-    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=64)
-    parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
+    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=128)
+    # parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
     parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=3e-4)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=150)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
     parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
     parser.add_argument('-debug', type=bool, help='turn logging to debug mode to display more info', default=False)
     parser.add_argument('-save_model', type=bool, help='True to save model checkpoint', default=False)
+    parser.add_argument('-override', type=bool, help='override existing log file', default=True)
 
     args = parser.parse_args()
 
@@ -139,6 +140,7 @@ def main():
     toy = args.toy
     debug = args.debug
     save_model = args.save_model
+    override = args.override
 
     # hyper-parameters
     max_len = args.max_len
@@ -156,13 +158,28 @@ def main():
     # setup logging
     log_filename = str(log_path / 'train_model.log')
     model_log = logging.getLogger(__name__)
-    logging.basicConfig(filename=log_filename, filemode='w', format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
+    logging.basicConfig(filename=log_filename, filemode='w' if override else 'a',
+                        format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
     if debug:
         model_log.setLevel(logging.DEBUG)
 
     model_log.info(f'---------START----------')
+
+    model_log.info(f'training parameters:\n'
+                   f'max_len: {max_len}\t'
+                   f'batch_size: {batch_size}\t'
+                   f'num_epochs: {num_epochs}\n'
+                   f'd_model: {d_model}\t'
+                   f'd_ff: {d_ff}\t'
+                   f'nx_layers: {nx_layers}\n'
+                   f'num_heads: {num_heads}\t'
+                   f'dropout: {p_dropout}\t'
+                   f'learning rate: {learning_rate}\n'
+                   f'clip: {clip}\t'
+                   f'max_diff: {max_diff}\t'
+                   f'toy run: {toy}')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model_log.info(f'device: {device}')

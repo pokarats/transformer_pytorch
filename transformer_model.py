@@ -413,6 +413,7 @@ class Transformer(nn.Module):
     def __init__(self, src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx, d_model, nx_layers, n_heads, d_ff,
                  dropout_p, max_length, device):
         super(Transformer, self).__init__()
+        logger.info(f'initializing Transformer model')
         self.encoder = Encoder(src_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device)
         self.decoder = Decoder(trg_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device)
         self.src_pad_idx = src_pad_idx
