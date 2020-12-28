@@ -111,9 +111,8 @@ class MultiHeadedAttention(nn.Module):
         # concatenate these n_heads attentions together with reshape to flatten last two dim to end up with
         # output.shape: (N, query_seq_len, d_model == n_heads * head_dim)
         output = attention.reshape(N, query_seq_len, self.n_heads * self.head_dim)
-        output: Tensor = self.fc_out(output)
 
-        return output  # output shape: (N, query_seq_len, d_model)
+        return self.fc_out(output)  # output shape: (N, query_seq_len, d_model)
 
 
 class FeedForward(nn.Module):
@@ -190,9 +189,8 @@ class EncoderLayer(nn.Module):
         output_from_ffn = self.feed_forward(output_from_attention_sublayer)
         output = self.add_norm_ffn(output_from_attention_sublayer + output_from_ffn)
         # output shape: (N, src_seq_len, d_model)
-        output = self.dropout(output)
 
-        return output
+        return self.dropout(output)
 
 
 class PositionEmbedding(nn.Module):
@@ -217,13 +215,9 @@ class Encoder(nn.Module):
         :param device:
         """
         super(Encoder, self).__init__()
-        self.src_vocab_size = src_vocab_size
+
         self.d_model = d_model
         self.device = device
-        self.nx_layers = nx_layers
-        self.n_heads = n_heads
-        self.d_ff = d_ff
-        self.max_length = max_length
 
         self.input_embedding = nn.Embedding(src_vocab_size, d_model)
         self.position_embedding = nn.Embedding(max_length, d_model)  # TODO implement PositionEmbedding per paper
@@ -319,9 +313,8 @@ class DecoderLayer(nn.Module):
         output_from_ffn = self.feed_forward(output_enc_attention_sublayer)
         output = self.add_norm_ffn(output_from_ffn + output_enc_attention_sublayer)
         # output shape: (N, trg_seq_len, d_model)
-        output = self.dropout(output)
 
-        return output
+        return self.dropout(output)
 
 
 class Decoder(nn.Module):
@@ -342,13 +335,8 @@ class Decoder(nn.Module):
         :param device:
         """
         super(Decoder, self).__init__()
-        self.src_vocab_size = trg_vocab_size
         self.d_model = d_model
         self.device = device
-        self.nx_layers = nx_layers
-        self.n_heads = n_heads
-        self.d_ff = d_ff
-        self.max_length = max_length
 
         self.input_embedding = nn.Embedding(trg_vocab_size, d_model)
         self.position_embedding = nn.Embedding(max_length, d_model)  # TODO implement PositionEmbedding per paper
@@ -387,9 +375,7 @@ class Decoder(nn.Module):
         for dec_layer in self.decoder_layers:
             trg_input_embeddings = dec_layer(trg_input_embeddings, src_encoder_output, trg_mask, src_mask)
 
-        output = self.fc_out(trg_input_embeddings)
-
-        return output  # output shape: (N, trg_seq_len, trg_vocab_size)
+        return self.fc_out(trg_input_embeddings)  # output shape: (N, trg_seq_len, trg_vocab_size)
 
 
 class Generator(nn.Module):
@@ -475,7 +461,7 @@ class Transformer(nn.Module):
         # output_prob = self.output_generator(output)
         logger.debug(f'Transformer model output shape: {output.shape}')
 
-        return output, F.softmax(output, dim=-1)  # , output_prob
+        return output
 
 
 if __name__ == "__main__":
