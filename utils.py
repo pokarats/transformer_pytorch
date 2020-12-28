@@ -35,9 +35,9 @@ def load_checkpoint(checkpoint, model, optimizer):
     optimizer.load_state_dict(checkpoint["optimizer"])
 
 
-def translate_sentence(model, sentence, src_field, trg_field, device, max_length=50):
+def translate_sentence(model, sentence, src_field, trg_field, device, src_lang='de', max_length=80):
     # Load german tokenizer
-    spacy_de = spacy.load("de")
+    spacy_de = spacy.load(src_lang)
 
     # Create tokens using spacy and everything in lower case (which is what our vocab is)
     if isinstance(sentence, str):

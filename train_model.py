@@ -17,7 +17,7 @@ def train(model, iterator, optimizer, criterion, clip, device):
 
     epoch_loss = 0
 
-    for batch_idx, batch in enumerate(tqdm(iterator)):
+    for batch_idx, batch in enumerate(iterator):
         # Transformer expects (N batch size, seq len) shape inputs
         src = batch.src.to(device)
         trg = batch.trg.to(device)
@@ -60,7 +60,7 @@ def evaluate(model, iterator, criterion, device):
     epoch_loss = 0
 
     with torch.no_grad():
-        for batch_idx, batch in enumerate(tqdm(iterator)):
+        for batch_idx, batch in enumerate(iterator):
             # Transformer expects (N batch size, seq len) shape inputs
             src = batch.src.to(device)
             trg = batch.trg.to(device)
@@ -97,6 +97,9 @@ def epoch_time(start_time: float, end_time: float):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-data_path', type=str, help='data directory', default='data')
+    parser.add_argument('-log_path', type=str, help='log file directory', default='log')
+    parser.add_argument('-pkl_path', type=str, help='pickle file directory', default='pkl')
+    parser.add_argument('-model_path', type=str, help='saved models directory', default='saved_models')
     parser.add_argument('-src_data', type=str, help='src corpus filename', default='news-commentary-v8.de-en.de')
     parser.add_argument('-trg_data', type=str, help='trg corpus filename', default='news-commentary-v8.de-en.en')
     parser.add_argument('-src_lang', type=str, help='source language', default='de')
@@ -109,24 +112,33 @@ def main():
     parser.add_argument('-dropout', type=float, help='value for dropout p parameter', default=0.1)
     parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=64)
     parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
-    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=0.0005)
-    parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=80)
+    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=3e-4)
+    parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=150)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
     parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
     parser.add_argument('-debug', type=bool, help='turn logging to debug mode to display more info', default=False)
-    parser.add_argument('-checkpoint', type=int, default=0)
+    parser.add_argument('-save_model', type=bool, help='True to save model checkpoint', default=False)
 
     args = parser.parse_args()
 
     # file management
     project_dir = Path(__file__).resolve().parent
     data_path = project_dir / args.data_path
+    log_path = project_dir / args.log_path
+    pkl_path = project_dir / args.pkl_path
+    model_path = project_dir / args.model_path
+
+    # mkdir if dir donl't exist
+
+    # parameters to run the script
     src_file = data_path / args.src_data
     trg_file = data_path / args.trg_data
     src_lang = args.src_lang
     trg_lang = args.trg_lang
     num_sents = args.num_sents
     toy = args.toy
+    debug = args.debug
+    save_model = args.save_model
 
     # hyper-parameters
     max_len = args.max_len
@@ -142,10 +154,13 @@ def main():
     max_diff = 1.5
 
     # setup logging
-    log_filename = str(project_dir / 'log' / f'train_model.log')
+    log_filename = str(log_path / 'train_model.log')
     model_log = logging.getLogger(__name__)
     logging.basicConfig(filename=log_filename, filemode='w', format='%(asctime)s %(name)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+
+    if debug:
+        model_log.setLevel(logging.DEBUG)
 
     model_log.info(f'---------START----------')
 
@@ -164,7 +179,7 @@ def main():
 
     train_data, val_data, test_data = data.make_datasets(data_path, train_file='training.json', val_file='val.json',
                                                          test_file='test.json', max_len=max_len,
-                                                         pkl_path=project_dir / 'pkl')
+                                                         pkl_path=pkl_path)
 
     train_iter, val_iter, test_iter = data.make_batch_iterators(train_data, val_data, test_data,
                                                                 batch_size=batch_size, device=device)
@@ -191,6 +206,8 @@ def main():
 
     # optimizer parameters are according to the paper
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.98), eps=1e-9)
+    # instead of Noam lr scheduler/decay as in the paper, use PyTorch lr scheduler instead for simplicity
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True)
     # CrossEntropyLoss has softmax built in, so no need for the final softmax layer in model architecture
     criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
@@ -202,16 +219,19 @@ def main():
         train_loss = train(model, train_iter, optimizer, criterion, clip, device)
         model_log.info(f'start evaluating model, epoch {epoch + 1}')
         valid_loss = evaluate(model, val_iter, criterion, device)
+        # update lr for next epoch with scheduler based on valid_loss stagnation
+        scheduler.step(valid_loss)
 
         end_time = time.time()
 
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
-        if valid_loss < best_valid_loss:
-            model_log.info(f'saving best model checkpoint')
-            best_valid_loss = valid_loss
-            checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
-            save_checkpoint(checkpoint, project_dir / 'saved_models' / 'transformer_model.pth.tar')
+        if save_model:
+            if valid_loss < best_valid_loss:
+                model_log.info(f'saving best model checkpoint')
+                best_valid_loss = valid_loss
+                checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
+                save_checkpoint(checkpoint, model_path / 'transformer_model.pth.tar')
 
         model_log.info(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
         model_log.info(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
