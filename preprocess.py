@@ -1,5 +1,5 @@
 import logging
-import pickle
+import dill as pickle
 from pathlib import Path
 from utils import *
 
@@ -55,12 +55,11 @@ class Vocabulary:
 
         if saved_field:
             logger.info(f'loading saved Fields from {src_pkl_file} and {trg_pkl_file}')
-            self.src_field = torch.load(pkl_path / src_pkl_file)
-            self.trg_field = torch.load(pkl_path / trg_pkl_file)
-            # with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
-            #        open(pkl_path / trg_pkl_file, mode='rb') as trg_pkl:
-            #    self.src_field = pickle.load(src_pkl)
-            #    self.trg_field = pickle.load(trg_pkl)
+            with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
+                    open(pkl_path / trg_pkl_file, mode='rb') as trg_pkl:
+                self.src_field = pickle.load(src_pkl)
+                self.trg_field = pickle.load(trg_pkl)
+            logger.info(f'len loaded src field vocab: {len(self.src_field.vocab)}')
         else:
             # Field already includes default pad_token='<pad>', unknown='<unk>'
             # batch_first=True so that dim 0 is batch size, Transformer expects inputs shape: (batch_size, seq len)
@@ -83,12 +82,30 @@ class Vocabulary:
             self.trg_field.build_vocab(train_data, min_freq=2)
 
             logger.info(f'saving Fields to {src_pkl_file} and {trg_pkl_file}')
-            torch.save(self.trg_field, pkl_path / src_pkl_file)
-            torch.save(self.trg_field, pkl_path / trg_pkl_file)
-            # with open(pkl_path / src_pkl_file, mode='wb') as src_pkl, \
-            #      open(pkl_path / trg_pkl_file, mode='wb') as trg_pkl:
-            #  pickle.dump(self.src_field, src_pkl, protocol=pickle.HIGHEST_PROTOCOL)
-            #  pickle.dump(self.trg_field, trg_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+            with open(pkl_path / src_pkl_file, mode='wb') as src_pkl, \
+                    open(pkl_path / trg_pkl_file, mode='wb') as trg_pkl:
+                pickle.dump(self.src_field, src_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self.trg_field, trg_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+
+            logger.info(f'checking that pickled field does the same thing as the original')
+            with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
+                    open(pkl_path / trg_pkl_file, mode='rb') as trg_pkl:
+                loaded_src_field = pickle.load(src_pkl)
+
+            assert len(self.src_field.vocab) == len(loaded_src_field.vocab), 'pickled src vocab size not the same?'
+            logger.info(f'original len src field vocab: {len(self.src_field.vocab)}')
+            example_src = [['seit', 'damals', 'ist', 'er', 'auf', 'über', '10.000', 'punkte'],
+                           ['seit', 'damals', 'ist', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>'],
+                           ['er', 'auf', 'über', '10.000', 'punkte', 'oov', '.', '<pad>']]
+            logger.debug(f'example_src {example_src}')
+
+            # Test results of numericalization
+            original_numericalization = self.src_field.numericalize(example_src)
+            logger.debug(f'og {original_numericalization}')
+            pickled_numericalization = loaded_src_field.numericalize(example_src)
+            logger.debug(f'pickled {pickled_numericalization}')
+
+            assert torch.all(torch.eq(original_numericalization, pickled_numericalization))
 
         return train_data, val_data, test_data
 

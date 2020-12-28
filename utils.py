@@ -2,6 +2,7 @@ import spacy
 import torch
 import logging
 from torchtext.data import bleu_score
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ def load_checkpoint(checkpoint, model, optimizer):
     optimizer.load_state_dict(checkpoint["optimizer"])
 
 
-def translate_sentence(model, sentence, src_field, trg_field, device, src_lang='de', max_length=80):
+def translate_sentence(model, sentence, src_field, trg_field, device, src_lang='de', max_length=150):
     # Load german tokenizer
     spacy_de = spacy.load(src_lang)
 
@@ -78,7 +79,7 @@ def calc_bleu_score(data, model, src_field, trg_field, device):
     targets = []
     outputs = []
 
-    for example in data:
+    for example in tqdm(data):
         src = vars(example)['src']
         trg = vars(example)['trg']
 
