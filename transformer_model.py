@@ -518,4 +518,4 @@ if __name__ == "__main__":
     out = model(src, trg[:, :-1])
     print(f'out.shape: {out.shape}')
     print(out)
-    print(out.argmax(2))
+    print(out.argmax(2)[:, -1])

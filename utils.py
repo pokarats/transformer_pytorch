@@ -55,22 +55,28 @@ def translate_sentence(model, sentence, src_field, trg_field, device, src_lang='
 
     # Convert to Tensor
     # Tensor shape needs to be (batch size, seq len)
-    sentence_tensor = torch.LongTensor(text_to_indices).unsqueeze(0).to(device)
+    src_tensor = torch.LongTensor(text_to_indices).unsqueeze(0).to(device)
 
-    outputs_token_indices = [trg_field.vocab.stoi[trg_field.init_token]]
+    src_mask = model.make_src_mask(src_tensor)
+
+    with torch.no_grad():
+        enc_src = model.encoder(src_tensor, src_mask)
+
+    trg_token_indices = [trg_field.vocab.stoi[trg_field.init_token]]
     for i in range(max_length):
-        trg_tensor = torch.LongTensor(outputs_token_indices).unsqueeze(0).to(device)
+        trg_tensor = torch.LongTensor(trg_token_indices).unsqueeze(0).to(device)
+        trg_mask = model.make_trg_mask(trg_tensor)
 
         with torch.no_grad():
-            output = model(sentence_tensor, trg_tensor)
+            output = model.decoder(trg_tensor, enc_src, trg_mask, src_mask)
 
         predicted_token_index = output.argmax(2)[:, -1].item()
-        outputs_token_indices.append(predicted_token_index)
+        trg_token_indices.append(predicted_token_index)
 
         if predicted_token_index == trg_field.vocab.stoi[trg_field.eos_token]:
             break
 
-    translated_sentence = [trg_field.vocab.itos[idx] for idx in outputs_token_indices]
+    translated_sentence = [trg_field.vocab.itos[idx] for idx in trg_token_indices]
     # remove start token
     return translated_sentence[1:]
 
