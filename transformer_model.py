@@ -1,8 +1,12 @@
 """
 Implementation of the Transformer model as described in the 'Attention is All You Need' paper
+
 I follow the implementation examples in the following resources:
-- "The Annotated Transformer"
-- "Aladdin Persons' Transformer from scratch YouTube video"
+- "The Annotated Transformer: https://nlp.seas.harvard.edu/2018/04/03/attention.html"
+- "Aladdin Perssons' Transformer from Scratch YouTube video:
+https://www.youtube.com/watch?v=U0s0f995w14&ab_channel=AladdinPersson"
+- "Ben Trevett's Language Translation with Transformer and Torchtext tutorial:
+https://pytorch.org/tutorials/beginner/torchtext_translation_tutorial.html?highlight=transformer"
 
 I try to balance between adhering to the variable names in the paper and using plain English for ease of comprehension
 """
@@ -381,6 +385,8 @@ class Decoder(nn.Module):
 class Generator(nn.Module):
     """
     Implement the last linear layer and the softmax of the Transformer architecture
+
+    This is not necessary if using nn.CrossEntropyLoss as softmax is already part of the function
     """
     def __init__(self, d_model, trg_vocab_size):
         super(Generator, self).__init__()
@@ -396,8 +402,26 @@ class Generator(nn.Module):
 
 
 class Transformer(nn.Module):
+    """
+    Implement the Transformer architecture consisting of nx_layers of the encoder block and nx_layers of the decoder
+    block.
+    """
     def __init__(self, src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx, d_model, nx_layers, n_heads, d_ff,
                  dropout_p, max_length, device):
+        """
+
+        :param src_vocab_size: src language vocab size == len(src_field.vocab)
+        :param trg_vocab_size: trg language vocab size == len(trg_field.vocab)
+        :param src_pad_idx: index for src padding
+        :param trg_pad_idx: index for trg padding
+        :param d_model: model hidden size, 512 in the paper
+        :param nx_layers: number of encoder/decoder layers, 6 in the paper
+        :param n_heads: number of attention heads, 8 in the paper
+        :param d_ff: number of hidden size for the FFN sublayer, 2084 in the paper or 4 * d_model
+        :param dropout_p: p value for the dropout, paper uses p = 0.1
+        :param max_length: maximum tokens in the sentence, paper uses 300; set to 150
+        :param device: cpu or cuda
+        """
         super(Transformer, self).__init__()
         logger.info(f'initializing Transformer model')
         self.encoder = Encoder(src_vocab_size, d_model, nx_layers, n_heads, d_ff, dropout_p, max_length, device)
@@ -491,8 +515,7 @@ if __name__ == "__main__":
     print(f'src: {src}, src shape: {src.shape}')
     print(f'trg: {trg} trg shape: {trg.shape}')
     print(f'trg without last token {trg[:, :-1]}, trg without <eos> shape: {trg[:, :-1].shape}')
-    out, out_softmax = model(src, trg[:, :-1])
-    print(f'out.shape: {out.shape}, out_softmax.shape {out_softmax.shape}')
-    print(out, '\n', out_softmax)
+    out = model(src, trg[:, :-1])
+    print(f'out.shape: {out.shape}')
+    print(out)
     print(out.argmax(2))
-    print(out_softmax.argmax(2))
