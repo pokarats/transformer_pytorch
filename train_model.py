@@ -118,7 +118,7 @@ def main():
     parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=5e-4)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=150)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
-    parser.add_argument('-toy', type=bool, help='whether or not toy dataset', default=True)
+    parser.add_argument('-toy_run', type=bool, help='whether or not toy dataset', default=False)
     parser.add_argument('-debug', type=bool, help='turn logging to debug mode to display more info', default=False)
     parser.add_argument('-save_model', type=bool, help='True to save model checkpoint', default=True)
     parser.add_argument('-override', type=bool, help='override existing log file', default=False)
@@ -164,7 +164,7 @@ def main():
     src_lang = args.src_lang
     trg_lang = args.trg_lang
     num_sents = args.num_sents
-    toy = args.toy
+    toy = args.toy_run
     debug = args.debug
     save_model = args.save_model
     override = args.override

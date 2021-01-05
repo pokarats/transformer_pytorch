@@ -1,133 +1,750 @@
-12/28/2020 05:17:35 AM __main__ - INFO: ---------START----------
-12/28/2020 05:17:35 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 64	num_epochs: 2
+12/28/2020 06:43:07 PM __main__ - INFO: ---------START----------
+12/28/2020 06:43:07 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 64	num_epochs: 10
 d_model: 512	d_ff: 2048	nx_layers: 6
 num_heads: 8	dropout: 0.1	learning rate: 0.0005
 clip: 1	max_diff: 1.5	toy run: True
-12/28/2020 05:17:35 AM __main__ - INFO: device: cpu
-12/28/2020 05:17:38 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 05:17:38 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 05:17:38 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 05:17:38 AM __main__ - ERROR: .json files not found! need to remake train, val, test split to .json
+override: False
+12/28/2020 06:43:07 PM __main__ - INFO: device: cuda
+12/28/2020 06:43:08 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 06:43:08 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 06:43:09 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 06:43:09 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 06:43:09 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
 Traceback (most recent call last):
-  File "/Users/noonscape/Documents/Transformer/practice/transformer/train_model.py", line 222, in main
-    pkl_path=pkl_path)
-  File "/Users/noonscape/Documents/Transformer/practice/transformer/preprocess.py", line 75, in make_datasets
-    test=test_file, format='json', fields=fields)
-  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 78, in splits
-    os.path.join(path, train), **kwargs)
-  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 251, in __init__
-    with io.open(os.path.expanduser(path), encoding="utf8") as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/noonscape/Documents/Transformer/practice/transformer/data/training.json'
-12/28/2020 05:17:38 AM preprocess - INFO: making train, val, test splits
-12/28/2020 05:17:38 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
-12/28/2020 05:17:39 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 05:17:41 AM preprocess - INFO: making batch iterators from data sets
-12/28/2020 05:17:41 AM transformer_model - INFO: initializing Transformer model
-12/28/2020 05:17:42 AM __main__ - INFO: start training model, epoch 1
-12/28/2020 05:20:10 AM __main__ - INFO: ---------START----------
-12/28/2020 05:20:10 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 64	num_epochs: 2
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 58, in make_datasets
+    self.src_field = torch.load(pkl_path / src_pkl_file)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 581, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 06:43:09 PM preprocess - INFO: making train, val, test splits
+12/28/2020 06:43:09 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 06:43:09 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 06:43:09 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 06:43:11 PM preprocess - INFO: making batch iterators from data sets
+12/28/2020 06:43:11 PM transformer_model - INFO: initializing Transformer model
+12/28/2020 06:43:13 PM __main__ - INFO: start training model, epoch 1
+12/28/2020 06:43:24 PM __main__ - INFO: start evaluating model on validation set, epoch 1
+12/28/2020 06:43:25 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 06:43:25 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 06:43:25 PM __main__ - INFO: Epoch: 01 | Time: 0m 11s
+12/28/2020 06:43:25 PM __main__ - INFO: 	Train Loss: 6.118 | Train PPL: 454.040
+12/28/2020 06:43:25 PM __main__ - INFO: 	Val. Loss: 4.818 |  Val. PPL: 123.660
+12/28/2020 06:43:25 PM __main__ - INFO: start training model, epoch 2
+12/28/2020 06:43:36 PM __main__ - INFO: start evaluating model on validation set, epoch 2
+12/28/2020 06:43:37 PM __main__ - INFO: Epoch: 02 | Time: 0m 11s
+12/28/2020 06:43:37 PM __main__ - INFO: 	Train Loss: 5.635 | Train PPL: 280.077
+12/28/2020 06:43:37 PM __main__ - INFO: 	Val. Loss: 4.922 |  Val. PPL: 137.335
+12/28/2020 06:43:37 PM __main__ - INFO: start training model, epoch 3
+12/28/2020 06:43:48 PM __main__ - INFO: start evaluating model on validation set, epoch 3
+12/28/2020 06:43:48 PM __main__ - INFO: Epoch: 03 | Time: 0m 11s
+12/28/2020 06:43:48 PM __main__ - INFO: 	Train Loss: 5.646 | Train PPL: 283.288
+12/28/2020 06:43:48 PM __main__ - INFO: 	Val. Loss: 4.832 |  Val. PPL: 125.447
+12/28/2020 06:43:48 PM __main__ - INFO: start training model, epoch 4
+12/28/2020 06:43:59 PM __main__ - INFO: start evaluating model on validation set, epoch 4
+12/28/2020 06:43:59 PM __main__ - INFO: Epoch: 04 | Time: 0m 11s
+12/28/2020 06:43:59 PM __main__ - INFO: 	Train Loss: 5.629 | Train PPL: 278.511
+12/28/2020 06:43:59 PM __main__ - INFO: 	Val. Loss: 4.852 |  Val. PPL: 127.995
+12/28/2020 06:43:59 PM __main__ - INFO: start training model, epoch 5
+12/28/2020 06:44:10 PM __main__ - INFO: start evaluating model on validation set, epoch 5
+12/28/2020 06:44:11 PM __main__ - INFO: Epoch: 05 | Time: 0m 11s
+12/28/2020 06:44:11 PM __main__ - INFO: 	Train Loss: 5.584 | Train PPL: 266.241
+12/28/2020 06:44:11 PM __main__ - INFO: 	Val. Loss: 4.864 |  Val. PPL: 129.593
+12/28/2020 06:44:11 PM __main__ - INFO: start training model, epoch 6
+12/28/2020 06:44:22 PM __main__ - INFO: start evaluating model on validation set, epoch 6
+12/28/2020 06:44:22 PM __main__ - INFO: Epoch: 06 | Time: 0m 11s
+12/28/2020 06:44:22 PM __main__ - INFO: 	Train Loss: 5.576 | Train PPL: 263.982
+12/28/2020 06:44:22 PM __main__ - INFO: 	Val. Loss: 4.855 |  Val. PPL: 128.411
+12/28/2020 06:44:22 PM __main__ - INFO: start training model, epoch 7
+12/28/2020 06:44:33 PM __main__ - INFO: start evaluating model on validation set, epoch 7
+12/28/2020 06:44:34 PM __main__ - INFO: Epoch: 07 | Time: 0m 11s
+12/28/2020 06:44:34 PM __main__ - INFO: 	Train Loss: 5.579 | Train PPL: 264.822
+12/28/2020 06:44:34 PM __main__ - INFO: 	Val. Loss: 4.853 |  Val. PPL: 128.122
+12/28/2020 06:44:34 PM __main__ - INFO: start training model, epoch 8
+12/28/2020 06:44:45 PM __main__ - INFO: start evaluating model on validation set, epoch 8
+12/28/2020 06:44:45 PM __main__ - INFO: Epoch: 08 | Time: 0m 11s
+12/28/2020 06:44:45 PM __main__ - INFO: 	Train Loss: 5.553 | Train PPL: 258.108
+12/28/2020 06:44:45 PM __main__ - INFO: 	Val. Loss: 4.854 |  Val. PPL: 128.248
+12/28/2020 06:44:45 PM __main__ - INFO: start training model, epoch 9
+12/28/2020 06:44:57 PM __main__ - INFO: start evaluating model on validation set, epoch 9
+12/28/2020 06:44:57 PM __main__ - INFO: Epoch: 09 | Time: 0m 12s
+12/28/2020 06:44:57 PM __main__ - INFO: 	Train Loss: 5.585 | Train PPL: 266.492
+12/28/2020 06:44:57 PM __main__ - INFO: 	Val. Loss: 4.854 |  Val. PPL: 128.212
+12/28/2020 06:44:57 PM __main__ - INFO: start training model, epoch 10
+12/28/2020 06:45:09 PM __main__ - INFO: start evaluating model on validation set, epoch 10
+12/28/2020 06:45:10 PM __main__ - INFO: Epoch: 10 | Time: 0m 12s
+12/28/2020 06:45:10 PM __main__ - INFO: 	Train Loss: 5.600 | Train PPL: 270.416
+12/28/2020 06:45:10 PM __main__ - INFO: 	Val. Loss: 4.855 |  Val. PPL: 128.397
+12/28/2020 06:45:10 PM __main__ - INFO: ---------END----------
+12/28/2020 07:23:12 PM __main__ - INFO: ---------START----------
+12/28/2020 07:23:12 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
 d_model: 512	d_ff: 2048	nx_layers: 6
 num_heads: 8	dropout: 0.1	learning rate: 0.0005
-clip: 1	max_diff: 1.5	toy run: False
-12/28/2020 05:20:10 AM __main__ - INFO: device: cpu
-12/28/2020 05:20:13 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 05:20:13 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 05:20:13 AM __main__ - ERROR: .json files not found! need to remake train, val, test split to .json
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 07:23:12 PM __main__ - INFO: device: cuda
+12/28/2020 07:23:13 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:23:13 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:23:13 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:23:13 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 07:23:13 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
 Traceback (most recent call last):
-  File "/Users/noonscape/Documents/Transformer/practice/transformer/train_model.py", line 222, in main
-    pkl_path=pkl_path)
-  File "/Users/noonscape/Documents/Transformer/practice/transformer/preprocess.py", line 75, in make_datasets
-    test=test_file, format='json', fields=fields)
-  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 78, in splits
-    os.path.join(path, train), **kwargs)
-  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 251, in __init__
-    with io.open(os.path.expanduser(path), encoding="utf8") as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/noonscape/Documents/Transformer/practice/transformer/data/training.json'
-12/28/2020 05:20:13 AM preprocess - INFO: making train, val, test splits
-12/28/2020 05:20:14 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
-12/28/2020 05:21:52 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 05:21:55 AM preprocess - INFO: making batch iterators from data sets
-12/28/2020 05:21:55 AM transformer_model - INFO: initializing Transformer model
-12/28/2020 05:21:56 AM __main__ - INFO: start training model, epoch 1
-12/28/2020 06:49:05 AM __main__ - INFO: ---------START----------
-12/28/2020 06:49:05 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 64	num_epochs: 2
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 58, in make_datasets
+    self.src_field = torch.load(pkl_path / src_pkl_file)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 581, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 07:23:13 PM preprocess - INFO: making train, val, test splits
+12/28/2020 07:23:13 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 07:23:13 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 07:23:14 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 07:50:26 PM __main__ - INFO: ---------START----------
+12/28/2020 07:50:26 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
 d_model: 512	d_ff: 2048	nx_layers: 6
 num_heads: 8	dropout: 0.1	learning rate: 0.0005
 clip: 1	max_diff: 1.5	toy run: True
 override: False
-12/28/2020 06:49:05 AM __main__ - INFO: device: cpu
-12/28/2020 06:49:07 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 06:49:07 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 06:49:07 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 06:49:07 AM __main__ - ERROR: .json files not found! need to remake train, val, test split to .json
+12/28/2020 07:50:26 PM __main__ - INFO: device: cuda
+12/28/2020 07:50:27 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:50:27 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:50:28 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:50:28 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 07:50:28 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
 Traceback (most recent call last):
-  File "/Users/noonscape/Documents/Transformer/practice/transformer/train_model.py", line 224, in main
-    pkl_path=pkl_path)
-  File "/Users/noonscape/Documents/Transformer/practice/transformer/preprocess.py", line 75, in make_datasets
-    test=test_file, format='json', fields=fields)
-  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 78, in splits
-    os.path.join(path, train), **kwargs)
-  File "/Users/noonscape/opt/anaconda3/envs/py374a/lib/python3.7/site-packages/torchtext/data/dataset.py", line 251, in __init__
-    with io.open(os.path.expanduser(path), encoding="utf8") as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/noonscape/Documents/Transformer/practice/transformer/data/training.json'
-12/28/2020 06:49:07 AM preprocess - INFO: making train, val, test splits
-12/28/2020 06:49:07 AM numexpr.utils - INFO: NumExpr defaulting to 4 threads.
-12/28/2020 06:49:08 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 06:49:10 AM __main__ - INFO: pickling train, val, test datasets
-12/28/2020 06:50:32 AM __main__ - INFO: ---------START----------
-12/28/2020 06:50:32 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 64	num_epochs: 2
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 58, in make_datasets
+    self.src_field = torch.load(pkl_path / src_pkl_file)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 581, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 07:50:28 PM preprocess - INFO: making train, val, test splits
+12/28/2020 07:50:28 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 07:50:28 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 07:50:28 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 07:51:35 PM __main__ - INFO: ---------START----------
+12/28/2020 07:51:35 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
 d_model: 512	d_ff: 2048	nx_layers: 6
 num_heads: 8	dropout: 0.1	learning rate: 0.0005
 clip: 1	max_diff: 1.5	toy run: True
 override: False
-12/28/2020 06:50:32 AM __main__ - INFO: device: cpu
-12/28/2020 06:50:34 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 06:50:34 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 06:50:34 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 06:50:35 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 06:50:37 AM __main__ - INFO: pickling train, val, test datasets
-12/28/2020 07:02:24 AM __main__ - INFO: ---------START----------
-12/28/2020 07:02:24 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 64	num_epochs: 2
+12/28/2020 07:51:35 PM __main__ - INFO: device: cuda
+12/28/2020 07:51:36 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:51:36 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:51:37 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:51:37 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 07:52:50 PM __main__ - INFO: ---------START----------
+12/28/2020 07:52:50 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
 d_model: 512	d_ff: 2048	nx_layers: 6
 num_heads: 8	dropout: 0.1	learning rate: 0.0005
 clip: 1	max_diff: 1.5	toy run: True
 override: False
-12/28/2020 07:02:24 AM __main__ - INFO: device: cpu
-12/28/2020 07:02:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 07:02:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 07:02:27 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 07:02:28 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 07:02:30 AM __main__ - INFO: pickling train, val, test datasets
-12/28/2020 07:34:12 AM __main__ - INFO: ---------START----------
-12/28/2020 07:34:12 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 64	num_epochs: 2
+12/28/2020 07:52:50 PM __main__ - INFO: device: cuda
+12/28/2020 07:52:52 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:52:52 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:52:52 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:52:52 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 07:52:52 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 58, in make_datasets
+    self.src_field = torch.load(pkl_path / src_pkl_file)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 581, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 07:52:52 PM preprocess - INFO: making train, val, test splits
+12/28/2020 07:52:52 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 07:52:52 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 07:52:53 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 07:52:55 PM preprocess - INFO: making batch iterators from data sets
+12/28/2020 07:52:55 PM transformer_model - INFO: initializing Transformer model
+12/28/2020 07:52:57 PM __main__ - INFO: start training model, epoch 1
+12/28/2020 07:53:09 PM __main__ - INFO: start evaluating model on validation set, epoch 1
+12/28/2020 07:53:09 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 07:53:09 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 07:53:10 PM __main__ - INFO: Epoch: 01 | Time: 0m 12s
+12/28/2020 07:53:10 PM __main__ - INFO: 	Train Loss: 5.940 | Train PPL: 379.928
+12/28/2020 07:53:10 PM __main__ - INFO: 	Val. Loss: 4.914 |  Val. PPL: 136.251
+12/28/2020 07:53:10 PM __main__ - INFO: start training model, epoch 2
+12/28/2020 07:53:22 PM __main__ - INFO: start evaluating model on validation set, epoch 2
+12/28/2020 07:53:22 PM __main__ - INFO: Epoch: 02 | Time: 0m 12s
+12/28/2020 07:53:22 PM __main__ - INFO: 	Train Loss: 5.651 | Train PPL: 284.487
+12/28/2020 07:53:22 PM __main__ - INFO: 	Val. Loss: 4.921 |  Val. PPL: 137.107
+12/28/2020 07:53:22 PM __main__ - INFO: start training model, epoch 3
+12/28/2020 07:53:34 PM __main__ - INFO: start evaluating model on validation set, epoch 3
+12/28/2020 07:53:35 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 07:53:35 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 07:55:11 PM __main__ - INFO: ---------START----------
+12/28/2020 07:55:11 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
 d_model: 512	d_ff: 2048	nx_layers: 6
 num_heads: 8	dropout: 0.1	learning rate: 0.0005
 clip: 1	max_diff: 1.5	toy run: True
 override: False
-12/28/2020 07:34:12 AM __main__ - INFO: device: cpu
-12/28/2020 07:34:14 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 07:34:15 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 07:34:15 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 07:34:16 AM preprocess - INFO: pickling fields to de_Field.pkl and en_Field.pkl
-12/28/2020 07:34:17 AM __main__ - INFO: saving train, val, test datasets
-12/28/2020 07:46:25 AM __main__ - INFO: ---------START----------
-12/28/2020 07:46:25 AM __main__ - INFO: training parameters:
-max_len: 150	batch_size: 64	num_epochs: 2
+12/28/2020 07:55:11 PM __main__ - INFO: device: cuda
+12/28/2020 07:55:13 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 07:55:13 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 07:55:13 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 07:55:13 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 07:55:13 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 58, in make_datasets
+    self.src_field = torch.load(pkl_path / src_pkl_file)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 581, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 07:55:13 PM preprocess - INFO: making train, val, test splits
+12/28/2020 07:55:13 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 07:55:13 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 07:55:14 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 08:00:05 PM __main__ - INFO: ---------START----------
+12/28/2020 08:00:05 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
 d_model: 512	d_ff: 2048	nx_layers: 6
 num_heads: 8	dropout: 0.1	learning rate: 0.0005
 clip: 1	max_diff: 1.5	toy run: True
 override: False
-12/28/2020 07:46:25 AM __main__ - INFO: device: cpu
-12/28/2020 07:46:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 07:46:27 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 07:46:28 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 07:46:28 AM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
-12/28/2020 07:46:31 AM preprocess - INFO: making batch iterators from data sets
-12/28/2020 07:46:31 AM transformer_model - INFO: initializing Transformer model
-12/28/2020 07:46:32 AM __main__ - INFO: start training model, epoch 1
+12/28/2020 08:00:05 PM __main__ - INFO: device: cuda
+12/28/2020 08:00:06 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 08:00:06 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 08:00:07 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 08:00:07 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 08:00:07 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 58, in make_datasets
+    self.src_field = torch.load(pkl_path / src_pkl_file)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 581, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/local/supoka/anaconda3/envs/py374a/lib/python3.7/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 08:00:07 PM preprocess - INFO: making train, val, test splits
+12/28/2020 08:00:07 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 08:00:07 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 08:00:07 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 08:05:40 PM __main__ - INFO: ---------START----------
+12/28/2020 08:05:40 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 08:05:40 PM __main__ - INFO: device: cuda
+12/28/2020 08:05:41 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 08:05:41 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 08:05:41 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 08:05:41 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 08:16:07 PM __main__ - INFO: ---------START----------
+12/28/2020 08:16:07 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 08:16:07 PM __main__ - INFO: device: cuda
+12/28/2020 08:16:09 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 08:16:09 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 08:16:09 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 08:16:09 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 08:16:09 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 60, in make_datasets
+    with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 08:16:09 PM preprocess - INFO: making train, val, test splits
+12/28/2020 08:16:09 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 08:16:09 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 08:16:10 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 08:16:14 PM preprocess - INFO: making batch iterators from data sets
+12/28/2020 08:16:14 PM transformer_model - INFO: initializing Transformer model
+12/28/2020 08:16:16 PM __main__ - INFO: start training model, epoch 1
+12/28/2020 08:16:28 PM __main__ - INFO: start evaluating model on validation set, epoch 1
+12/28/2020 08:16:29 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:16:29 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:16:30 PM __main__ - INFO: Epoch: 01 | Time: 0m 12s
+12/28/2020 08:16:30 PM __main__ - INFO: 	Train Loss: 5.940 | Train PPL: 379.928
+12/28/2020 08:16:30 PM __main__ - INFO: 	Val. Loss: 4.914 |  Val. PPL: 136.251
+12/28/2020 08:16:30 PM __main__ - INFO: start training model, epoch 2
+12/28/2020 08:16:41 PM __main__ - INFO: start evaluating model on validation set, epoch 2
+12/28/2020 08:16:42 PM __main__ - INFO: Epoch: 02 | Time: 0m 12s
+12/28/2020 08:16:42 PM __main__ - INFO: 	Train Loss: 5.651 | Train PPL: 284.487
+12/28/2020 08:16:42 PM __main__ - INFO: 	Val. Loss: 4.921 |  Val. PPL: 137.107
+12/28/2020 08:16:42 PM __main__ - INFO: start training model, epoch 3
+12/28/2020 08:16:54 PM __main__ - INFO: start evaluating model on validation set, epoch 3
+12/28/2020 08:16:54 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:16:54 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:16:55 PM __main__ - INFO: Epoch: 03 | Time: 0m 12s
+12/28/2020 08:16:55 PM __main__ - INFO: 	Train Loss: 5.636 | Train PPL: 280.308
+12/28/2020 08:16:55 PM __main__ - INFO: 	Val. Loss: 4.876 |  Val. PPL: 131.126
+12/28/2020 08:16:55 PM __main__ - INFO: start training model, epoch 4
+12/28/2020 08:17:07 PM __main__ - INFO: start evaluating model on validation set, epoch 4
+12/28/2020 08:17:08 PM __main__ - INFO: Epoch: 04 | Time: 0m 12s
+12/28/2020 08:17:08 PM __main__ - INFO: 	Train Loss: 5.622 | Train PPL: 276.371
+12/28/2020 08:17:08 PM __main__ - INFO: 	Val. Loss: 4.898 |  Val. PPL: 133.962
+12/28/2020 08:17:08 PM __main__ - INFO: start training model, epoch 5
+12/28/2020 08:17:20 PM __main__ - INFO: start evaluating model on validation set, epoch 5
+12/28/2020 08:17:21 PM __main__ - INFO: Epoch: 05 | Time: 0m 12s
+12/28/2020 08:17:21 PM __main__ - INFO: 	Train Loss: 5.616 | Train PPL: 274.855
+12/28/2020 08:17:21 PM __main__ - INFO: 	Val. Loss: 4.906 |  Val. PPL: 135.156
+12/28/2020 08:17:21 PM __main__ - INFO: start training model, epoch 6
+12/28/2020 08:17:33 PM __main__ - INFO: start evaluating model on validation set, epoch 6
+12/28/2020 08:17:34 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:17:34 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:17:34 PM __main__ - INFO: Epoch: 06 | Time: 0m 12s
+12/28/2020 08:17:34 PM __main__ - INFO: 	Train Loss: 5.618 | Train PPL: 275.268
+12/28/2020 08:17:34 PM __main__ - INFO: 	Val. Loss: 4.875 |  Val. PPL: 130.955
+12/28/2020 08:17:34 PM __main__ - INFO: start training model, epoch 7
+12/28/2020 08:17:47 PM __main__ - INFO: start evaluating model on validation set, epoch 7
+12/28/2020 08:17:47 PM __main__ - INFO: Epoch: 07 | Time: 0m 12s
+12/28/2020 08:17:47 PM __main__ - INFO: 	Train Loss: 5.605 | Train PPL: 271.736
+12/28/2020 08:17:47 PM __main__ - INFO: 	Val. Loss: 4.884 |  Val. PPL: 132.213
+12/28/2020 08:17:47 PM __main__ - INFO: start training model, epoch 8
+12/28/2020 08:18:00 PM __main__ - INFO: start evaluating model on validation set, epoch 8
+12/28/2020 08:18:00 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:18:00 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:18:01 PM __main__ - INFO: Epoch: 08 | Time: 0m 12s
+12/28/2020 08:18:01 PM __main__ - INFO: 	Train Loss: 5.609 | Train PPL: 272.797
+12/28/2020 08:18:01 PM __main__ - INFO: 	Val. Loss: 4.854 |  Val. PPL: 128.211
+12/28/2020 08:18:01 PM __main__ - INFO: start training model, epoch 9
+12/28/2020 08:18:14 PM __main__ - INFO: start evaluating model on validation set, epoch 9
+12/28/2020 08:18:14 PM __main__ - INFO: Epoch: 09 | Time: 0m 12s
+12/28/2020 08:18:14 PM __main__ - INFO: 	Train Loss: 5.596 | Train PPL: 269.405
+12/28/2020 08:18:14 PM __main__ - INFO: 	Val. Loss: 4.913 |  Val. PPL: 136.030
+12/28/2020 08:18:14 PM __main__ - INFO: start training model, epoch 10
+12/28/2020 08:18:27 PM __main__ - INFO: start evaluating model on validation set, epoch 10
+12/28/2020 08:18:28 PM __main__ - INFO: Epoch: 10 | Time: 0m 13s
+12/28/2020 08:18:28 PM __main__ - INFO: 	Train Loss: 5.589 | Train PPL: 267.417
+12/28/2020 08:18:28 PM __main__ - INFO: 	Val. Loss: 4.876 |  Val. PPL: 131.159
+12/28/2020 08:18:28 PM __main__ - INFO: start training model, epoch 11
+12/28/2020 08:18:40 PM __main__ - INFO: start evaluating model on validation set, epoch 11
+12/28/2020 08:18:41 PM __main__ - INFO: Epoch: 11 | Time: 0m 13s
+12/28/2020 08:18:41 PM __main__ - INFO: 	Train Loss: 5.611 | Train PPL: 273.404
+12/28/2020 08:18:41 PM __main__ - INFO: 	Val. Loss: 4.886 |  Val. PPL: 132.374
+12/28/2020 08:18:41 PM __main__ - INFO: start training model, epoch 12
+12/28/2020 08:18:54 PM __main__ - INFO: start evaluating model on validation set, epoch 12
+12/28/2020 08:18:54 PM __main__ - INFO: Epoch: 12 | Time: 0m 13s
+12/28/2020 08:18:54 PM __main__ - INFO: 	Train Loss: 5.570 | Train PPL: 262.564
+12/28/2020 08:18:54 PM __main__ - INFO: 	Val. Loss: 4.892 |  Val. PPL: 133.166
+12/28/2020 08:18:54 PM __main__ - INFO: start training model, epoch 13
+12/28/2020 08:19:07 PM __main__ - INFO: start evaluating model on validation set, epoch 13
+12/28/2020 08:19:08 PM __main__ - INFO: Epoch: 13 | Time: 0m 13s
+12/28/2020 08:19:08 PM __main__ - INFO: 	Train Loss: 5.585 | Train PPL: 266.429
+12/28/2020 08:19:08 PM __main__ - INFO: 	Val. Loss: 4.875 |  Val. PPL: 130.956
+12/28/2020 08:19:08 PM __main__ - INFO: start training model, epoch 14
+12/28/2020 08:19:20 PM __main__ - INFO: start evaluating model on validation set, epoch 14
+12/28/2020 08:19:21 PM __main__ - INFO: Epoch: 14 | Time: 0m 13s
+12/28/2020 08:19:21 PM __main__ - INFO: 	Train Loss: 5.578 | Train PPL: 264.417
+12/28/2020 08:19:21 PM __main__ - INFO: 	Val. Loss: 4.887 |  Val. PPL: 132.582
+12/28/2020 08:19:21 PM __main__ - INFO: start training model, epoch 15
+12/28/2020 08:19:34 PM __main__ - INFO: start evaluating model on validation set, epoch 15
+12/28/2020 08:19:34 PM __main__ - INFO: Epoch: 15 | Time: 0m 13s
+12/28/2020 08:19:34 PM __main__ - INFO: 	Train Loss: 5.576 | Train PPL: 263.919
+12/28/2020 08:19:34 PM __main__ - INFO: 	Val. Loss: 4.886 |  Val. PPL: 132.397
+12/28/2020 08:19:34 PM __main__ - INFO: start training model, epoch 16
+12/28/2020 08:19:47 PM __main__ - INFO: start evaluating model on validation set, epoch 16
+12/28/2020 08:19:48 PM __main__ - INFO: Epoch: 16 | Time: 0m 13s
+12/28/2020 08:19:48 PM __main__ - INFO: 	Train Loss: 5.582 | Train PPL: 265.623
+12/28/2020 08:19:48 PM __main__ - INFO: 	Val. Loss: 4.885 |  Val. PPL: 132.260
+12/28/2020 08:19:48 PM __main__ - INFO: start training model, epoch 17
+12/28/2020 08:20:00 PM __main__ - INFO: start evaluating model on validation set, epoch 17
+12/28/2020 08:20:01 PM __main__ - INFO: Epoch: 17 | Time: 0m 13s
+12/28/2020 08:20:01 PM __main__ - INFO: 	Train Loss: 5.561 | Train PPL: 259.970
+12/28/2020 08:20:01 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.052
+12/28/2020 08:20:01 PM __main__ - INFO: start training model, epoch 18
+12/28/2020 08:20:14 PM __main__ - INFO: start evaluating model on validation set, epoch 18
+12/28/2020 08:20:14 PM __main__ - INFO: Epoch: 18 | Time: 0m 13s
+12/28/2020 08:20:14 PM __main__ - INFO: 	Train Loss: 5.573 | Train PPL: 263.347
+12/28/2020 08:20:14 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.075
+12/28/2020 08:20:14 PM __main__ - INFO: start training model, epoch 19
+12/28/2020 08:20:27 PM __main__ - INFO: start evaluating model on validation set, epoch 19
+12/28/2020 08:20:27 PM __main__ - INFO: Epoch: 19 | Time: 0m 13s
+12/28/2020 08:20:27 PM __main__ - INFO: 	Train Loss: 5.569 | Train PPL: 262.225
+12/28/2020 08:20:27 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.051
+12/28/2020 08:20:27 PM __main__ - INFO: start training model, epoch 20
+12/28/2020 08:20:40 PM __main__ - INFO: start evaluating model on validation set, epoch 20
+12/28/2020 08:20:41 PM __main__ - INFO: Epoch: 20 | Time: 0m 13s
+12/28/2020 08:20:41 PM __main__ - INFO: 	Train Loss: 5.561 | Train PPL: 260.209
+12/28/2020 08:20:41 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.037
+12/28/2020 08:20:41 PM __main__ - INFO: start training model, epoch 21
+12/28/2020 08:20:53 PM __main__ - INFO: start evaluating model on validation set, epoch 21
+12/28/2020 08:20:54 PM __main__ - INFO: Epoch: 21 | Time: 0m 13s
+12/28/2020 08:20:54 PM __main__ - INFO: 	Train Loss: 5.578 | Train PPL: 264.525
+12/28/2020 08:20:54 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.037
+12/28/2020 08:20:54 PM __main__ - INFO: start training model, epoch 22
+12/28/2020 08:21:07 PM __main__ - INFO: start evaluating model on validation set, epoch 22
+12/28/2020 08:21:07 PM __main__ - INFO: Epoch: 22 | Time: 0m 13s
+12/28/2020 08:21:07 PM __main__ - INFO: 	Train Loss: 5.568 | Train PPL: 261.837
+12/28/2020 08:21:07 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.037
+12/28/2020 08:21:07 PM __main__ - INFO: start training model, epoch 23
+12/28/2020 08:21:20 PM __main__ - INFO: start evaluating model on validation set, epoch 23
+12/28/2020 08:21:20 PM __main__ - INFO: Epoch: 23 | Time: 0m 13s
+12/28/2020 08:21:20 PM __main__ - INFO: 	Train Loss: 5.570 | Train PPL: 262.413
+12/28/2020 08:21:20 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.036
+12/28/2020 08:21:20 PM __main__ - INFO: start training model, epoch 24
+12/28/2020 08:21:33 PM __main__ - INFO: start evaluating model on validation set, epoch 24
+12/28/2020 08:21:34 PM __main__ - INFO: Epoch: 24 | Time: 0m 13s
+12/28/2020 08:21:34 PM __main__ - INFO: 	Train Loss: 5.573 | Train PPL: 263.107
+12/28/2020 08:21:34 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.036
+12/28/2020 08:21:34 PM __main__ - INFO: start training model, epoch 25
+12/28/2020 08:21:46 PM __main__ - INFO: start evaluating model on validation set, epoch 25
+12/28/2020 08:21:47 PM __main__ - INFO: Epoch: 25 | Time: 0m 13s
+12/28/2020 08:21:47 PM __main__ - INFO: 	Train Loss: 5.573 | Train PPL: 263.304
+12/28/2020 08:21:47 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.036
+12/28/2020 08:21:47 PM __main__ - INFO: ---------END----------
+12/28/2020 08:26:10 PM __main__ - INFO: ---------START----------
+12/28/2020 08:26:10 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 32	num_epochs: 25
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 08:26:10 PM __main__ - INFO: device: cuda
+12/28/2020 08:26:12 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 08:26:12 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 08:26:12 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 08:26:12 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 08:26:12 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 60, in make_datasets
+    with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 08:26:12 PM preprocess - INFO: making train, val, test splits
+12/28/2020 08:26:12 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 08:26:12 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 08:26:13 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 08:26:17 PM preprocess - INFO: making batch iterators from data sets
+12/28/2020 08:26:17 PM transformer_model - INFO: initializing Transformer model
+12/28/2020 08:26:19 PM __main__ - INFO: start training model, epoch 1
+12/28/2020 08:26:31 PM __main__ - INFO: start evaluating model on validation set, epoch 1
+12/28/2020 08:26:32 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:26:32 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:26:33 PM __main__ - INFO: Epoch: 01 | Time: 0m 12s
+12/28/2020 08:26:33 PM __main__ - INFO: 	Train Loss: 5.940 | Train PPL: 379.928
+12/28/2020 08:26:33 PM __main__ - INFO: 	Val. Loss: 4.914 |  Val. PPL: 136.251
+12/28/2020 08:26:33 PM __main__ - INFO: start training model, epoch 2
+12/28/2020 08:26:45 PM __main__ - INFO: start evaluating model on validation set, epoch 2
+12/28/2020 08:26:45 PM __main__ - INFO: Epoch: 02 | Time: 0m 12s
+12/28/2020 08:26:45 PM __main__ - INFO: 	Train Loss: 5.651 | Train PPL: 284.487
+12/28/2020 08:26:45 PM __main__ - INFO: 	Val. Loss: 4.921 |  Val. PPL: 137.107
+12/28/2020 08:26:45 PM __main__ - INFO: start training model, epoch 3
+12/28/2020 08:26:57 PM __main__ - INFO: start evaluating model on validation set, epoch 3
+12/28/2020 08:26:58 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:26:58 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:26:58 PM __main__ - INFO: Epoch: 03 | Time: 0m 12s
+12/28/2020 08:26:58 PM __main__ - INFO: 	Train Loss: 5.636 | Train PPL: 280.308
+12/28/2020 08:26:58 PM __main__ - INFO: 	Val. Loss: 4.876 |  Val. PPL: 131.126
+12/28/2020 08:26:58 PM __main__ - INFO: start training model, epoch 4
+12/28/2020 08:27:10 PM __main__ - INFO: start evaluating model on validation set, epoch 4
+12/28/2020 08:27:11 PM __main__ - INFO: Epoch: 04 | Time: 0m 12s
+12/28/2020 08:27:11 PM __main__ - INFO: 	Train Loss: 5.622 | Train PPL: 276.371
+12/28/2020 08:27:11 PM __main__ - INFO: 	Val. Loss: 4.898 |  Val. PPL: 133.962
+12/28/2020 08:27:11 PM __main__ - INFO: start training model, epoch 5
+12/28/2020 08:27:23 PM __main__ - INFO: start evaluating model on validation set, epoch 5
+12/28/2020 08:27:24 PM __main__ - INFO: Epoch: 05 | Time: 0m 12s
+12/28/2020 08:27:24 PM __main__ - INFO: 	Train Loss: 5.616 | Train PPL: 274.855
+12/28/2020 08:27:24 PM __main__ - INFO: 	Val. Loss: 4.906 |  Val. PPL: 135.156
+12/28/2020 08:27:24 PM __main__ - INFO: start training model, epoch 6
+12/28/2020 08:27:36 PM __main__ - INFO: start evaluating model on validation set, epoch 6
+12/28/2020 08:27:36 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:27:36 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:27:37 PM __main__ - INFO: Epoch: 06 | Time: 0m 12s
+12/28/2020 08:27:37 PM __main__ - INFO: 	Train Loss: 5.618 | Train PPL: 275.268
+12/28/2020 08:27:37 PM __main__ - INFO: 	Val. Loss: 4.875 |  Val. PPL: 130.955
+12/28/2020 08:27:37 PM __main__ - INFO: start training model, epoch 7
+12/28/2020 08:27:49 PM __main__ - INFO: start evaluating model on validation set, epoch 7
+12/28/2020 08:27:50 PM __main__ - INFO: Epoch: 07 | Time: 0m 12s
+12/28/2020 08:27:50 PM __main__ - INFO: 	Train Loss: 5.605 | Train PPL: 271.736
+12/28/2020 08:27:50 PM __main__ - INFO: 	Val. Loss: 4.884 |  Val. PPL: 132.213
+12/28/2020 08:27:50 PM __main__ - INFO: start training model, epoch 8
+12/28/2020 08:28:03 PM __main__ - INFO: start evaluating model on validation set, epoch 8
+12/28/2020 08:28:03 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 08:28:03 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 08:28:04 PM __main__ - INFO: Epoch: 08 | Time: 0m 13s
+12/28/2020 08:28:04 PM __main__ - INFO: 	Train Loss: 5.609 | Train PPL: 272.797
+12/28/2020 08:28:04 PM __main__ - INFO: 	Val. Loss: 4.854 |  Val. PPL: 128.211
+12/28/2020 08:28:04 PM __main__ - INFO: start training model, epoch 9
+12/28/2020 08:28:16 PM __main__ - INFO: start evaluating model on validation set, epoch 9
+12/28/2020 08:28:17 PM __main__ - INFO: Epoch: 09 | Time: 0m 13s
+12/28/2020 08:28:17 PM __main__ - INFO: 	Train Loss: 5.596 | Train PPL: 269.405
+12/28/2020 08:28:17 PM __main__ - INFO: 	Val. Loss: 4.913 |  Val. PPL: 136.030
+12/28/2020 08:28:17 PM __main__ - INFO: start training model, epoch 10
+12/28/2020 08:28:30 PM __main__ - INFO: start evaluating model on validation set, epoch 10
+12/28/2020 08:28:30 PM __main__ - INFO: Epoch: 10 | Time: 0m 13s
+12/28/2020 08:28:30 PM __main__ - INFO: 	Train Loss: 5.589 | Train PPL: 267.417
+12/28/2020 08:28:30 PM __main__ - INFO: 	Val. Loss: 4.876 |  Val. PPL: 131.159
+12/28/2020 08:28:30 PM __main__ - INFO: start training model, epoch 11
+12/28/2020 08:28:43 PM __main__ - INFO: start evaluating model on validation set, epoch 11
+12/28/2020 08:28:43 PM __main__ - INFO: Epoch: 11 | Time: 0m 13s
+12/28/2020 08:28:43 PM __main__ - INFO: 	Train Loss: 5.611 | Train PPL: 273.404
+12/28/2020 08:28:43 PM __main__ - INFO: 	Val. Loss: 4.886 |  Val. PPL: 132.374
+12/28/2020 08:28:43 PM __main__ - INFO: start training model, epoch 12
+12/28/2020 08:28:56 PM __main__ - INFO: start evaluating model on validation set, epoch 12
+12/28/2020 08:28:57 PM __main__ - INFO: Epoch: 12 | Time: 0m 13s
+12/28/2020 08:28:57 PM __main__ - INFO: 	Train Loss: 5.570 | Train PPL: 262.564
+12/28/2020 08:28:57 PM __main__ - INFO: 	Val. Loss: 4.892 |  Val. PPL: 133.166
+12/28/2020 08:28:57 PM __main__ - INFO: start training model, epoch 13
+12/28/2020 08:29:09 PM __main__ - INFO: start evaluating model on validation set, epoch 13
+12/28/2020 08:29:10 PM __main__ - INFO: Epoch: 13 | Time: 0m 13s
+12/28/2020 08:29:10 PM __main__ - INFO: 	Train Loss: 5.585 | Train PPL: 266.429
+12/28/2020 08:29:10 PM __main__ - INFO: 	Val. Loss: 4.875 |  Val. PPL: 130.956
+12/28/2020 08:29:10 PM __main__ - INFO: start training model, epoch 14
+12/28/2020 08:29:22 PM __main__ - INFO: start evaluating model on validation set, epoch 14
+12/28/2020 08:29:23 PM __main__ - INFO: Epoch: 14 | Time: 0m 13s
+12/28/2020 08:29:23 PM __main__ - INFO: 	Train Loss: 5.578 | Train PPL: 264.417
+12/28/2020 08:29:23 PM __main__ - INFO: 	Val. Loss: 4.887 |  Val. PPL: 132.582
+12/28/2020 08:29:23 PM __main__ - INFO: start training model, epoch 15
+12/28/2020 08:29:35 PM __main__ - INFO: start evaluating model on validation set, epoch 15
+12/28/2020 08:29:36 PM __main__ - INFO: Epoch: 15 | Time: 0m 13s
+12/28/2020 08:29:36 PM __main__ - INFO: 	Train Loss: 5.576 | Train PPL: 263.919
+12/28/2020 08:29:36 PM __main__ - INFO: 	Val. Loss: 4.886 |  Val. PPL: 132.397
+12/28/2020 08:29:36 PM __main__ - INFO: start training model, epoch 16
+12/28/2020 08:29:49 PM __main__ - INFO: start evaluating model on validation set, epoch 16
+12/28/2020 08:29:49 PM __main__ - INFO: Epoch: 16 | Time: 0m 13s
+12/28/2020 08:29:49 PM __main__ - INFO: 	Train Loss: 5.582 | Train PPL: 265.623
+12/28/2020 08:29:49 PM __main__ - INFO: 	Val. Loss: 4.885 |  Val. PPL: 132.260
+12/28/2020 08:29:49 PM __main__ - INFO: start training model, epoch 17
+12/28/2020 08:30:02 PM __main__ - INFO: start evaluating model on validation set, epoch 17
+12/28/2020 08:30:02 PM __main__ - INFO: Epoch: 17 | Time: 0m 13s
+12/28/2020 08:30:02 PM __main__ - INFO: 	Train Loss: 5.561 | Train PPL: 259.970
+12/28/2020 08:30:02 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.052
+12/28/2020 08:30:02 PM __main__ - INFO: start training model, epoch 18
+12/28/2020 08:30:15 PM __main__ - INFO: start evaluating model on validation set, epoch 18
+12/28/2020 08:30:15 PM __main__ - INFO: Epoch: 18 | Time: 0m 13s
+12/28/2020 08:30:15 PM __main__ - INFO: 	Train Loss: 5.573 | Train PPL: 263.347
+12/28/2020 08:30:15 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.075
+12/28/2020 08:30:15 PM __main__ - INFO: start training model, epoch 19
+12/28/2020 08:30:28 PM __main__ - INFO: start evaluating model on validation set, epoch 19
+12/28/2020 08:30:28 PM __main__ - INFO: Epoch: 19 | Time: 0m 13s
+12/28/2020 08:30:28 PM __main__ - INFO: 	Train Loss: 5.569 | Train PPL: 262.225
+12/28/2020 08:30:28 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.051
+12/28/2020 08:30:28 PM __main__ - INFO: start training model, epoch 20
+12/28/2020 08:30:41 PM __main__ - INFO: start evaluating model on validation set, epoch 20
+12/28/2020 08:30:42 PM __main__ - INFO: Epoch: 20 | Time: 0m 13s
+12/28/2020 08:30:42 PM __main__ - INFO: 	Train Loss: 5.561 | Train PPL: 260.209
+12/28/2020 08:30:42 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.037
+12/28/2020 08:30:42 PM __main__ - INFO: start training model, epoch 21
+12/28/2020 08:30:54 PM __main__ - INFO: start evaluating model on validation set, epoch 21
+12/28/2020 08:30:55 PM __main__ - INFO: Epoch: 21 | Time: 0m 13s
+12/28/2020 08:30:55 PM __main__ - INFO: 	Train Loss: 5.578 | Train PPL: 264.525
+12/28/2020 08:30:55 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.037
+12/28/2020 08:30:55 PM __main__ - INFO: start training model, epoch 22
+12/28/2020 08:31:07 PM __main__ - INFO: start evaluating model on validation set, epoch 22
+12/28/2020 08:31:08 PM __main__ - INFO: Epoch: 22 | Time: 0m 13s
+12/28/2020 08:31:08 PM __main__ - INFO: 	Train Loss: 5.568 | Train PPL: 261.837
+12/28/2020 08:31:08 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.037
+12/28/2020 08:31:08 PM __main__ - INFO: start training model, epoch 23
+12/28/2020 08:31:20 PM __main__ - INFO: start evaluating model on validation set, epoch 23
+12/28/2020 08:31:21 PM __main__ - INFO: Epoch: 23 | Time: 0m 13s
+12/28/2020 08:31:21 PM __main__ - INFO: 	Train Loss: 5.570 | Train PPL: 262.413
+12/28/2020 08:31:21 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.036
+12/28/2020 08:31:21 PM __main__ - INFO: start training model, epoch 24
+12/28/2020 08:31:33 PM __main__ - INFO: start evaluating model on validation set, epoch 24
+12/28/2020 08:31:34 PM __main__ - INFO: Epoch: 24 | Time: 0m 13s
+12/28/2020 08:31:34 PM __main__ - INFO: 	Train Loss: 5.573 | Train PPL: 263.107
+12/28/2020 08:31:34 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.036
+12/28/2020 08:31:34 PM __main__ - INFO: start training model, epoch 25
+12/28/2020 08:31:46 PM __main__ - INFO: start evaluating model on validation set, epoch 25
+12/28/2020 08:31:47 PM __main__ - INFO: Epoch: 25 | Time: 0m 12s
+12/28/2020 08:31:47 PM __main__ - INFO: 	Train Loss: 5.573 | Train PPL: 263.304
+12/28/2020 08:31:47 PM __main__ - INFO: 	Val. Loss: 4.883 |  Val. PPL: 132.036
+12/28/2020 08:31:47 PM __main__ - INFO: ---------END----------
+12/28/2020 09:50:36 PM __main__ - INFO: ---------START----------
+12/28/2020 09:50:36 PM __main__ - INFO: training parameters:
+max_len: 150	batch_size: 48	num_epochs: 25
+d_model: 512	d_ff: 2048	nx_layers: 6
+num_heads: 8	dropout: 0.1	learning rate: 0.0005
+clip: 1	max_diff: 1.5	toy run: True
+override: False
+12/28/2020 09:50:36 PM __main__ - INFO: device: cuda
+12/28/2020 09:50:38 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 09:50:38 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 09:50:38 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 09:50:38 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 09:50:38 PM __main__ - ERROR: .json or .pkl files not found! need to remake train, val, test split to .json
+Traceback (most recent call last):
+  File "train_model.py", line 228, in main
+    pkl_path=pkl_path, saved_field=True)
+  File "/local/supoka/TransformerSem/transformer/preprocess.py", line 58, in make_datasets
+    with open(pkl_path / src_pkl_file, mode='rb') as src_pkl, \
+FileNotFoundError: [Errno 2] No such file or directory: '/local/supoka/TransformerSem/transformer/pkl/de_Field.pkl'
+12/28/2020 09:50:38 PM preprocess - INFO: making train, val, test splits
+12/28/2020 09:50:38 PM numexpr.utils - INFO: Note: NumExpr detected 40 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+12/28/2020 09:50:38 PM numexpr.utils - INFO: NumExpr defaulting to 8 threads.
+12/28/2020 09:50:39 PM preprocess - INFO: saving Fields to de_Field.pkl and en_Field.pkl
+12/28/2020 09:50:42 PM preprocess - INFO: checking that pickled field does the same thing as the original
+12/28/2020 09:50:43 PM preprocess - INFO: original len src field vocab: 1772
+12/28/2020 09:50:43 PM preprocess - INFO: making batch iterators from data sets
+12/28/2020 09:50:43 PM transformer_model - INFO: initializing Transformer model
+12/28/2020 09:50:45 PM __main__ - INFO: start training model, epoch 1
+12/28/2020 09:50:56 PM __main__ - INFO: start evaluating model on validation set, epoch 1
+12/28/2020 09:50:57 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 09:50:57 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 09:50:57 PM __main__ - INFO: Epoch: 01 | Time: 0m 11s
+12/28/2020 09:50:57 PM __main__ - INFO: 	Train Loss: 6.024 | Train PPL: 413.154
+12/28/2020 09:50:57 PM __main__ - INFO: 	Val. Loss: 4.907 |  Val. PPL: 135.225
+12/28/2020 09:50:57 PM __main__ - INFO: start training model, epoch 2
+12/28/2020 09:51:09 PM __main__ - INFO: start evaluating model on validation set, epoch 2
+12/28/2020 09:51:09 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 09:51:09 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 09:51:10 PM __main__ - INFO: Epoch: 02 | Time: 0m 11s
+12/28/2020 09:51:10 PM __main__ - INFO: 	Train Loss: 5.621 | Train PPL: 276.235
+12/28/2020 09:51:10 PM __main__ - INFO: 	Val. Loss: 4.905 |  Val. PPL: 134.992
+12/28/2020 09:51:10 PM __main__ - INFO: start training model, epoch 3
+12/28/2020 09:51:21 PM __main__ - INFO: start evaluating model on validation set, epoch 3
+12/28/2020 09:51:21 PM __main__ - INFO: Epoch: 03 | Time: 0m 11s
+12/28/2020 09:51:21 PM __main__ - INFO: 	Train Loss: 5.600 | Train PPL: 270.352
+12/28/2020 09:51:21 PM __main__ - INFO: 	Val. Loss: 4.907 |  Val. PPL: 135.242
+12/28/2020 09:51:21 PM __main__ - INFO: start training model, epoch 4
+12/28/2020 09:51:33 PM __main__ - INFO: start evaluating model on validation set, epoch 4
+12/28/2020 09:51:33 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 09:51:33 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 09:51:34 PM __main__ - INFO: Epoch: 04 | Time: 0m 11s
+12/28/2020 09:51:34 PM __main__ - INFO: 	Train Loss: 5.616 | Train PPL: 274.761
+12/28/2020 09:51:34 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.393
+12/28/2020 09:51:34 PM __main__ - INFO: start training model, epoch 5
+12/28/2020 09:51:45 PM __main__ - INFO: start evaluating model on validation set, epoch 5
+12/28/2020 09:51:46 PM __main__ - INFO: Epoch: 05 | Time: 0m 11s
+12/28/2020 09:51:46 PM __main__ - INFO: 	Train Loss: 5.602 | Train PPL: 271.020
+12/28/2020 09:51:46 PM __main__ - INFO: 	Val. Loss: 4.904 |  Val. PPL: 134.844
+12/28/2020 09:51:46 PM __main__ - INFO: start training model, epoch 6
+12/28/2020 09:51:57 PM __main__ - INFO: start evaluating model on validation set, epoch 6
+12/28/2020 09:51:57 PM __main__ - INFO: Epoch: 06 | Time: 0m 11s
+12/28/2020 09:51:57 PM __main__ - INFO: 	Train Loss: 5.619 | Train PPL: 275.619
+12/28/2020 09:51:57 PM __main__ - INFO: 	Val. Loss: 4.909 |  Val. PPL: 135.454
+12/28/2020 09:51:57 PM __main__ - INFO: start training model, epoch 7
+12/28/2020 09:52:09 PM __main__ - INFO: start evaluating model on validation set, epoch 7
+12/28/2020 09:52:09 PM __main__ - INFO: Epoch: 07 | Time: 0m 11s
+12/28/2020 09:52:09 PM __main__ - INFO: 	Train Loss: 5.613 | Train PPL: 274.050
+12/28/2020 09:52:09 PM __main__ - INFO: 	Val. Loss: 4.921 |  Val. PPL: 137.110
+12/28/2020 09:52:09 PM __main__ - INFO: start training model, epoch 8
+12/28/2020 09:52:20 PM __main__ - INFO: start evaluating model on validation set, epoch 8
+12/28/2020 09:52:21 PM __main__ - INFO: saving best model checkpoint
+12/28/2020 09:52:21 PM utils - INFO: Saving checkpoint to /local/supoka/TransformerSem/transformer/saved_models/transformer_model.pth.tar
+12/28/2020 09:52:22 PM __main__ - INFO: Epoch: 08 | Time: 0m 11s
+12/28/2020 09:52:22 PM __main__ - INFO: 	Train Loss: 5.575 | Train PPL: 263.743
+12/28/2020 09:52:22 PM __main__ - INFO: 	Val. Loss: 4.898 |  Val. PPL: 133.968
+12/28/2020 09:52:22 PM __main__ - INFO: start training model, epoch 9
+12/28/2020 09:52:33 PM __main__ - INFO: start evaluating model on validation set, epoch 9
+12/28/2020 09:52:34 PM __main__ - INFO: Epoch: 09 | Time: 0m 11s
+12/28/2020 09:52:34 PM __main__ - INFO: 	Train Loss: 5.552 | Train PPL: 257.866
+12/28/2020 09:52:34 PM __main__ - INFO: 	Val. Loss: 4.909 |  Val. PPL: 135.438
+12/28/2020 09:52:34 PM __main__ - INFO: start training model, epoch 10
+12/28/2020 09:52:46 PM __main__ - INFO: start evaluating model on validation set, epoch 10
+12/28/2020 09:52:46 PM __main__ - INFO: Epoch: 10 | Time: 0m 12s
+12/28/2020 09:52:46 PM __main__ - INFO: 	Train Loss: 5.582 | Train PPL: 265.535
+12/28/2020 09:52:46 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.361
+12/28/2020 09:52:46 PM __main__ - INFO: start training model, epoch 11
+12/28/2020 09:52:58 PM __main__ - INFO: start evaluating model on validation set, epoch 11
+12/28/2020 09:52:58 PM __main__ - INFO: Epoch: 11 | Time: 0m 12s
+12/28/2020 09:52:58 PM __main__ - INFO: 	Train Loss: 5.575 | Train PPL: 263.717
+12/28/2020 09:52:58 PM __main__ - INFO: 	Val. Loss: 4.904 |  Val. PPL: 134.852
+12/28/2020 09:52:58 PM __main__ - INFO: start training model, epoch 12
+12/28/2020 09:53:10 PM __main__ - INFO: start evaluating model on validation set, epoch 12
+12/28/2020 09:53:11 PM __main__ - INFO: Epoch: 12 | Time: 0m 12s
+12/28/2020 09:53:11 PM __main__ - INFO: 	Train Loss: 5.559 | Train PPL: 259.648
+12/28/2020 09:53:11 PM __main__ - INFO: 	Val. Loss: 4.904 |  Val. PPL: 134.810
+12/28/2020 09:53:11 PM __main__ - INFO: start training model, epoch 13
+12/28/2020 09:53:23 PM __main__ - INFO: start evaluating model on validation set, epoch 13
+12/28/2020 09:53:23 PM __main__ - INFO: Epoch: 13 | Time: 0m 12s
+12/28/2020 09:53:23 PM __main__ - INFO: 	Train Loss: 5.546 | Train PPL: 256.304
+12/28/2020 09:53:23 PM __main__ - INFO: 	Val. Loss: 4.902 |  Val. PPL: 134.585
+12/28/2020 09:53:23 PM __main__ - INFO: start training model, epoch 14
+12/28/2020 09:53:35 PM __main__ - INFO: start evaluating model on validation set, epoch 14
+12/28/2020 09:53:36 PM __main__ - INFO: Epoch: 14 | Time: 0m 12s
+12/28/2020 09:53:36 PM __main__ - INFO: 	Train Loss: 5.556 | Train PPL: 258.751
+12/28/2020 09:53:36 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.392
+12/28/2020 09:53:36 PM __main__ - INFO: start training model, epoch 15
+12/28/2020 09:53:47 PM __main__ - INFO: start evaluating model on validation set, epoch 15
+12/28/2020 09:53:48 PM __main__ - INFO: Epoch: 15 | Time: 0m 12s
+12/28/2020 09:53:48 PM __main__ - INFO: 	Train Loss: 5.552 | Train PPL: 257.790
+12/28/2020 09:53:48 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.393
+12/28/2020 09:53:48 PM __main__ - INFO: start training model, epoch 16
+12/28/2020 09:54:00 PM __main__ - INFO: start evaluating model on validation set, epoch 16
+12/28/2020 09:54:00 PM __main__ - INFO: Epoch: 16 | Time: 0m 12s
+12/28/2020 09:54:00 PM __main__ - INFO: 	Train Loss: 5.558 | Train PPL: 259.234
+12/28/2020 09:54:00 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.402
+12/28/2020 09:54:00 PM __main__ - INFO: start training model, epoch 17
+12/28/2020 09:54:12 PM __main__ - INFO: start evaluating model on validation set, epoch 17
+12/28/2020 09:54:13 PM __main__ - INFO: Epoch: 17 | Time: 0m 12s
+12/28/2020 09:54:13 PM __main__ - INFO: 	Train Loss: 5.586 | Train PPL: 266.653
+12/28/2020 09:54:13 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.421
+12/28/2020 09:54:13 PM __main__ - INFO: start training model, epoch 18
+12/28/2020 09:54:25 PM __main__ - INFO: start evaluating model on validation set, epoch 18
+12/28/2020 09:54:25 PM __main__ - INFO: Epoch: 18 | Time: 0m 12s
+12/28/2020 09:54:25 PM __main__ - INFO: 	Train Loss: 5.562 | Train PPL: 260.226
+12/28/2020 09:54:25 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.422
+12/28/2020 09:54:25 PM __main__ - INFO: start training model, epoch 19
+12/28/2020 09:54:37 PM __main__ - INFO: start evaluating model on validation set, epoch 19
+12/28/2020 09:54:37 PM __main__ - INFO: Epoch: 19 | Time: 0m 12s
+12/28/2020 09:54:37 PM __main__ - INFO: 	Train Loss: 5.569 | Train PPL: 262.067
+12/28/2020 09:54:37 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.422
+12/28/2020 09:54:37 PM __main__ - INFO: start training model, epoch 20
+12/28/2020 09:54:49 PM __main__ - INFO: start evaluating model on validation set, epoch 20
+12/28/2020 09:54:50 PM __main__ - INFO: Epoch: 20 | Time: 0m 12s
+12/28/2020 09:54:50 PM __main__ - INFO: 	Train Loss: 5.570 | Train PPL: 262.513
+12/28/2020 09:54:50 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.420
+12/28/2020 09:54:50 PM __main__ - INFO: start training model, epoch 21
+12/28/2020 09:55:02 PM __main__ - INFO: start evaluating model on validation set, epoch 21
+12/28/2020 09:55:02 PM __main__ - INFO: Epoch: 21 | Time: 0m 12s
+12/28/2020 09:55:02 PM __main__ - INFO: 	Train Loss: 5.563 | Train PPL: 260.728
+12/28/2020 09:55:02 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.420
+12/28/2020 09:55:02 PM __main__ - INFO: start training model, epoch 22
+12/28/2020 09:55:14 PM __main__ - INFO: start evaluating model on validation set, epoch 22
+12/28/2020 09:55:14 PM __main__ - INFO: Epoch: 22 | Time: 0m 12s
+12/28/2020 09:55:14 PM __main__ - INFO: 	Train Loss: 5.578 | Train PPL: 264.582
+12/28/2020 09:55:14 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.421
+12/28/2020 09:55:14 PM __main__ - INFO: start training model, epoch 23
+12/28/2020 09:55:26 PM __main__ - INFO: start evaluating model on validation set, epoch 23
+12/28/2020 09:55:27 PM __main__ - INFO: Epoch: 23 | Time: 0m 12s
+12/28/2020 09:55:27 PM __main__ - INFO: 	Train Loss: 5.559 | Train PPL: 259.666
+12/28/2020 09:55:27 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.420
+12/28/2020 09:55:27 PM __main__ - INFO: start training model, epoch 24
+12/28/2020 09:55:39 PM __main__ - INFO: start evaluating model on validation set, epoch 24
+12/28/2020 09:55:39 PM __main__ - INFO: Epoch: 24 | Time: 0m 12s
+12/28/2020 09:55:39 PM __main__ - INFO: 	Train Loss: 5.562 | Train PPL: 260.246
+12/28/2020 09:55:39 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.420
+12/28/2020 09:55:39 PM __main__ - INFO: start training model, epoch 25
+12/28/2020 09:55:51 PM __main__ - INFO: start evaluating model on validation set, epoch 25
+12/28/2020 09:55:51 PM __main__ - INFO: Epoch: 25 | Time: 0m 12s
+12/28/2020 09:55:51 PM __main__ - INFO: 	Train Loss: 5.559 | Train PPL: 259.675
+12/28/2020 09:55:51 PM __main__ - INFO: 	Val. Loss: 4.901 |  Val. PPL: 134.420
+12/28/2020 09:55:51 PM __main__ - INFO: ---------END----------

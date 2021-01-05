@@ -1,14 +1,14 @@
 """
 Implementation of the Transformer model as described in the 'Attention is All You Need' paper
 
-I follow the implementation examples in the following resources:
+I followed the implementation examples in the following resources:
 - "The Annotated Transformer: https://nlp.seas.harvard.edu/2018/04/03/attention.html"
 - "Aladdin Perssons' Transformer from Scratch YouTube video:
 https://www.youtube.com/watch?v=U0s0f995w14&ab_channel=AladdinPersson"
 - "Ben Trevett's Language Translation with Transformer and Torchtext tutorial:
 https://pytorch.org/tutorials/beginner/torchtext_translation_tutorial.html?highlight=transformer"
 
-I try to balance between adhering to the variable names in the paper and using plain English for ease of comprehension
+I tried to balance between adhering to the variable names in the paper and using plain English for ease of comprehension
 """
 import math
 import logging
@@ -281,7 +281,7 @@ class DecoderLayer(nn.Module):
     def forward(self, trg, src_encoder_output, trg_mask, src_mask) -> Tensor:
         """
         1. masked decoder attention sublayer
-            1.a in the DecoderLayer V,K,Q are all from the same input trg
+            1.a in the EncoderLayer V,K,Q are all from the same input trg
         2. add and normalize attention sublayer output with residual input from before the decoder attention sublayer
         3. apply dropout to the added and normed output of the attention sublayer
         4. encoder attention sublayer
@@ -290,7 +290,7 @@ class DecoderLayer(nn.Module):
         5. add and normalize encoder attention sublayer output with residual from the output of step 3.
         6. apply dropout to the added and normed output of the encoder attention sublayer
         7. output from encoder attention sublayer goes through FFN
-        8. add and normalize output_from_ffn with residual (output from encoder attention sublayer) from before the
+        8. add and normalize output_from_ffn with residual (output from decoder attention sublayer) from before the
         ffn layer
         9. apply dropout to the added and normed output of the FFN sublayer
 
@@ -374,7 +374,7 @@ class Decoder(nn.Module):
                                             self.position_embedding(positions))
 
         # trg_input_embeddings shape: (N, trg_seq_len, d_model)
-        # the ouput from each enc_layer becomes the input to the next dec_layer
+        # the ouput from each dec_layer becomes the input to the next dec_layer
         # only the ouput from the last deco_layer will be sent out to the linear layer after the Decoder block
         for dec_layer in self.decoder_layers:
             trg_input_embeddings = dec_layer(trg_input_embeddings, src_encoder_output, trg_mask, src_mask)
@@ -386,7 +386,7 @@ class Generator(nn.Module):
     """
     Implement the last linear layer and the softmax of the Transformer architecture
 
-    This is not necessary if using nn.CrossEntropyLoss as softmax is already part of the function
+    This is not necessary if using nn.CrossEntropyLoss as softmax is already built-in
     """
     def __init__(self, d_model, trg_vocab_size):
         super(Generator, self).__init__()

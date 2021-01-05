@@ -1,5 +1,15 @@
-12/28/2020 07:56:49 AM __main__ - INFO: device: cpu
-12/28/2020 07:56:51 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.de
-12/28/2020 07:56:52 AM utils - INFO: processing lines from file: /Users/noonscape/Documents/Transformer/practice/transformer/data/news-commentary-v8.de-en.en
-12/28/2020 07:56:52 AM preprocess - INFO: Partition raw data to 1024 sentences.
-12/28/2020 07:56:52 AM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 09:56:52 PM __main__ - INFO: device: cuda
+12/28/2020 09:56:54 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.de
+12/28/2020 09:56:54 PM utils - INFO: processing lines from file: /local/supoka/TransformerSem/transformer/data/news-commentary-v8.de-en.en
+12/28/2020 09:56:54 PM preprocess - INFO: Partition raw data to 1024 sentences.
+12/28/2020 09:56:54 PM preprocess - INFO: loading saved Fields from de_Field.pkl and en_Field.pkl
+12/28/2020 09:56:55 PM preprocess - INFO: len loaded src field vocab: 1772
+12/28/2020 09:56:56 PM __main__ - INFO: testing a sample sentence pair from training_data
+12/28/2020 09:56:56 PM __main__ - INFO: example_src = ['seit', 'damals', 'ist', 'er', 'auf', 'über', '10.000', 'punkte', 'gestiegen', '.']
+12/28/2020 09:56:56 PM __main__ - INFO: example_trg = ['since', 'then', ',', 'the', 'index', 'has', 'climbed', 'above', '10,000', '.']
+12/28/2020 09:56:56 PM preprocess - INFO: making batch iterators from data sets
+12/28/2020 09:56:56 PM transformer_model - INFO: initializing Transformer model
+12/28/2020 09:56:58 PM utils - INFO: Loading checkpoint
+12/28/2020 09:56:58 PM __main__ - INFO: evaluating model on test dataset
+12/28/2020 09:56:59 PM __main__ - INFO: | Test Loss: 4.873 | Test PPL: 130.665 |
+12/28/2020 10:01:03 PM __main__ - INFO: Model BLEU score 0.00
