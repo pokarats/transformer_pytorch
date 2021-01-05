@@ -135,8 +135,9 @@ optional arguments:
 
 `python eval_model.py` will evaluate the model on the test data and calculate BLEU score.
 
-usage: eval_model.py [-h] [-data_path DATA_PATH] [-log_path LOG_PATH]
-
+usage: eval_model.py 
+    
+    [-h] [-data_path DATA_PATH] [-log_path LOG_PATH]
     [-pkl_path PKL_PATH] [-model_path MODEL_PATH]
     [-src_data SRC_DATA] [-trg_data TRG_DATA]
     [-src_lang SRC_LANG] [-trg_lang TRG_LANG]
@@ -148,8 +149,10 @@ usage: eval_model.py [-h] [-data_path DATA_PATH] [-log_path LOG_PATH]
 
 optional arguments:
 
-  > -h               show this help message and exit  
-  > -data_path       data directory; default='data'  
+  > -h                 
+    >show this help message and exit  
+  > -data_path         
+    >data directory; default='data'  
   > -log_path        log file directory; default='log'  
   > -pkl_path        pickle file directory; default='pkl'  
   > -model_path      saved models directory; default='saved_models'  
