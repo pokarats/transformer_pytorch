@@ -1,3 +1,9 @@
+"""
+**preprocess.py Module**
+
+Script to pre-process data files into Transformer compatible batches and batch iterators
+
+"""
 import logging
 import dill as pickle
 from pathlib import Path
@@ -15,7 +21,21 @@ logger = logging.getLogger(__name__)
 
 
 class Vocabulary:
+    """
+    Class to generate pre-processed dataset into batches and interators for training, validation, testing sets.
+    Module uses torchtext to generate dataset and iterators.
+    The default tokenizer is 'spacy'
+
+    """
     def __init__(self, src_path, trg_path, tokenizer='spacy', src_lang='de', trg_lang='en'):
+        """
+
+        :param src_path: path to src data file
+        :param trg_path: path to trg data file
+        :param tokenizer: tokenizer to use
+        :param src_lang: src language
+        :param trg_lang: trg language
+        """
         self.src_lang = src_lang
         self.trg_lang = trg_lang
         self.src_tokenizer = get_tokenizer(tokenizer, language=src_lang)
@@ -26,11 +46,25 @@ class Vocabulary:
         self.trg_field = None
 
     def partition_raw_data(self, num_sents):
+        """
+        Partition dataset to specified number o sentences to create toy dataset
+
+        :param num_sents: specify number of sentences to use for toy dataset
+        :return:
+        """
         logger.info(f'Partition raw data to {num_sents} sentences.')
         self.raw_data[self.src_lang] = self.raw_data[self.src_lang][:num_sents]
         self.raw_data[self.trg_lang] = self.raw_data[self.trg_lang][:num_sents]
 
     def make_train_val_test_splits(self, max_len, max_diff, test_split_size=0.2):
+        """
+        Create training, validation, and test splits
+
+        :param max_len: maximum number of tokens in the sentence
+        :param max_diff: maximum factor of difference in number of tokens between src and trg sentences
+        :param test_split_size: proportion to hold out for test set
+        :return:
+        """
         logger.info(f'making train, val, test splits')
         # prune raw data for max seq len
         df = pd.DataFrame(self.raw_data, columns=[self.src_lang, self.trg_lang])
@@ -48,10 +82,34 @@ class Vocabulary:
 
     @staticmethod
     def to_json(data_frame, path, filename):
+        """
+        Save data farm to json
+
+        :param data_frame: pandas dataframe
+        :param path: path to data directory
+        :param filename: filename for the .json file
+        :return:
+        """
         data_frame.to_json(path / filename, orient='records', lines=True)
 
     def make_datasets(self, data_path, train_file, val_file, test_file, max_len, pkl_path, src_pkl_file='de_Field.pkl',
                       trg_pkl_file='en_Field.pkl', sos='<sos>', eos='<eos>', saved_field=False):
+        """
+        Create training, validation, and test datasets from json files in TabularDataset format.
+
+        :param data_path: path to data directory
+        :param train_file: training json file (should be the same as the file saved in to_json function)
+        :param val_file: validation json file (should be the same as the file saved in to_json function)
+        :param test_file: test json file (should be the same as the file saved in to_json function)
+        :param max_len: maximum number of tokens in the sentence
+        :param pkl_path: path to pickle file directory
+        :param src_pkl_file: src pickle filename
+        :param trg_pkl_file: trg pickle filename
+        :param sos: start of sentence token
+        :param eos: end of sentence token
+        :param saved_field: whether or not there's a saved torchtext.data.Field pickled file to be loaded
+        :return:
+        """
 
         if saved_field:
             logger.info(f'loading saved Fields from {src_pkl_file} and {trg_pkl_file}')
@@ -111,6 +169,16 @@ class Vocabulary:
 
     @staticmethod
     def make_batch_iterators(train_data, val_data, test_data, batch_size, device):
+        """
+        Create batch iterators for training, validation, and testing datasets using torchtext.data.BucketIterator
+
+        :param train_data: training set in TabularDataset object
+        :param val_data: validation set in TabularDataset object
+        :param test_data: test set in TabularDataset object
+        :param batch_size: number of sentences in a batch
+        :param device: cuda or cpu
+        :return:
+        """
         logger.info(f'making batch iterators from data sets')
         # batch iterator
         train_iterator, val_iterator, test_iterator = BucketIterator.splits((train_data, val_data, test_data),

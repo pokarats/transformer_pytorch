@@ -1,3 +1,10 @@
+"""
+**eval_model.py Module**
+
+Wrapper function to perform translation with saved model weights after training.
+Evaluate model on the test dataset and calculate BLEU score from translation results.
+
+"""
 import argparse
 import logging
 import random
@@ -24,12 +31,12 @@ def main():
     parser.add_argument('-trg_data', type=str, help='trg corpus filename', default='news-commentary-v8.de-en.en')
     parser.add_argument('-src_lang', type=str, help='source language', default='de')
     parser.add_argument('-trg_lang', type=str, help='target language', default='en')
-    parser.add_argument('-d_model', type=int, help='d_model or hidden size', default=512)
-    parser.add_argument('-d_ff', type=int, help='d_ff or hidden size of FFN sublayer', default=2048)
-    parser.add_argument('-n_layers', type=int, help='number of encoder/decoder layers', default=6)
+    parser.add_argument('-dmodel', type=int, help='d_model or hidden size', default=512)
+    parser.add_argument('-dff', type=int, help='d_ff or hidden size of FFN sublayer', default=2048)
+    parser.add_argument('-nlayers', type=int, help='number of encoder/decoder layers', default=6)
     parser.add_argument('-heads', type=int, help='number of attention heads', default=8)
     parser.add_argument('-dropout', type=float, help='value for dropout p parameter', default=0.1)
-    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=128)
+    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=48)
     parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=3e-4)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=150)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
@@ -86,9 +93,9 @@ def main():
     # hyper-parameters
     max_len = args.max_len
     batch_size = args.batch_size
-    d_model = args.d_model
-    d_ff = args.d_ff
-    nx_layers = args.n_layers
+    d_model = args.dmodel
+    d_ff = args.dff
+    nx_layers = args.nlayers
     num_heads = args.heads
     p_dropout = args.dropout
     learning_rate = args.lr

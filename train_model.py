@@ -1,3 +1,15 @@
+"""
+**train_model.py Module**
+
+Wrapper module to train Transformer model and save model check points based on best validation loss.
+
+This is the module to run to train the model. Model parameters can be configured/changed from default values
+via command line options. Otherwise, default values are as per the "Attention is All You Need" paper:
+
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, L., & Polosukhin, I. (2017).
+Attention Is All You Need. ArXiv:1706.03762 [Cs]. http://arxiv.org/abs/1706.03762
+
+"""
 import random
 
 import dill as pickle
@@ -16,6 +28,17 @@ import argparse
 
 
 def train(model, iterator, optimizer, criterion, clip, device):
+    """
+    Function to train in batches
+
+    :param model: model to be used for training, e.g. Transformer model
+    :param iterator: torchtext.data.BucketIterator object
+    :param optimizer: torch optimizer
+    :param criterion: loss function
+    :param clip: parameter for clip_grad_norm
+    :param device: cpu or cuda
+    :return: epoch loss
+    """
     model.train()
 
     epoch_loss = 0
@@ -58,6 +81,15 @@ def train(model, iterator, optimizer, criterion, clip, device):
 
 
 def evaluate(model, iterator, criterion, device):
+    """
+    run model in eval mode in batches
+
+    :param model: model to be used for evaluation, e.g. Transformer model
+    :param iterator: torchtext.data.BucketIterator object
+    :param criterion: loss function
+    :param device: cpu or cuda
+    :return: epoch validation or test loss
+    """
     model.eval()
 
     epoch_loss = 0
@@ -91,6 +123,13 @@ def evaluate(model, iterator, criterion, device):
 
 
 def epoch_time(start_time: float, end_time: float):
+    """
+    Function to calculate elapsed time in mins and secs
+
+    :param start_time: time function ended
+    :param end_time: time function finished
+    :return: elapsed minutes, elapsed seconds
+    """
     elapsed_time = end_time - start_time
     elapsed_mins = int(elapsed_time / 60)
     elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
@@ -107,21 +146,21 @@ def main():
     parser.add_argument('-trg_data', type=str, help='trg corpus filename', default='news-commentary-v8.de-en.en')
     parser.add_argument('-src_lang', type=str, help='source language', default='de')
     parser.add_argument('-trg_lang', type=str, help='target language', default='en')
-    parser.add_argument('-epochs', type=int, help='number of epochs to train for', default=2)
-    parser.add_argument('-d_model', type=int, help='d_model or hidden size', default=512)
-    parser.add_argument('-d_ff', type=int, help='d_ff or hidden size of FFN sublayer', default=2048)
-    parser.add_argument('-n_layers', type=int, help='number of encoder/decoder layers', default=6)
+    parser.add_argument('-epochs', type=int, help='number of epochs to train for', default=25)
+    parser.add_argument('-dmodel', type=int, help='d_model or hidden size', default=512)
+    parser.add_argument('-dff', type=int, help='d_ff or hidden size of FFN sublayer', default=2048)
+    parser.add_argument('-nlayers', type=int, help='number of encoder/decoder layers', default=6)
     parser.add_argument('-heads', type=int, help='number of attention heads', default=8)
     parser.add_argument('-dropout', type=float, help='value for dropout p parameter', default=0.1)
-    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=64)
+    parser.add_argument('-batch_size', type=int, help='number of samples per batch', default=48)
     # parser.add_argument('-print_every', type=int, help='number of epochs for interval printing', default=10)
-    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=5e-4)
+    parser.add_argument('-lr', type=float, help='learning rate for gradient update', default=3e-4)
     parser.add_argument('-max_len', type=int, help='maximum number of tokens in a sentence', default=150)
     parser.add_argument('-num_sents', type=int, help='number of sentences to partition toy corpus', default=1024)
-    parser.add_argument('-toy_run', type=bool, help='whether or not toy dataset', default=False)
+    parser.add_argument('-toy_run', type=bool, help='whether or not toy dataset', default=True)
     parser.add_argument('-debug', type=bool, help='turn logging to debug mode to display more info', default=False)
     parser.add_argument('-save_model', type=bool, help='True to save model checkpoint', default=True)
-    parser.add_argument('-override', type=bool, help='override existing log file', default=False)
+    parser.add_argument('-override', type=bool, help='override existing log file', default=True)
     parser.add_argument('-seed', type=int, help='seed for the iterator random shuffling repeat', default=1234)
 
     args = parser.parse_args()
@@ -174,9 +213,9 @@ def main():
     max_len = args.max_len
     batch_size = args.batch_size
     num_epochs = args.epochs
-    d_model = args.d_model
-    d_ff = args.d_ff
-    nx_layers = args.n_layers
+    d_model = args.dmodel
+    d_ff = args.dff
+    nx_layers = args.nlayers
     num_heads = args.heads
     p_dropout = args.dropout
     learning_rate = args.lr

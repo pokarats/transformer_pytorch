@@ -1,12 +1,16 @@
 """
-Implementation of the Transformer model as described in the 'Attention is All You Need' paper
+**transformer_model.py Module**
+
+Implementation of the Transformer model as described in the 'Attention is All You Need' paper:
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, L., & Polosukhin, I. (2017).
+Attention Is All You Need. ArXiv:1706.03762 [Cs]. http://arxiv.org/abs/1706.03762
+
 
 I followed the implementation examples in the following resources:
-- "The Annotated Transformer: https://nlp.seas.harvard.edu/2018/04/03/attention.html"
-- "Aladdin Perssons' Transformer from Scratch YouTube video:
-https://www.youtube.com/watch?v=U0s0f995w14&ab_channel=AladdinPersson"
-- "Ben Trevett's Language Translation with Transformer and Torchtext tutorial:
-https://pytorch.org/tutorials/beginner/torchtext_translation_tutorial.html?highlight=transformer"
+    - "The Annotated Transformer: https://nlp.seas.harvard.edu/2018/04/03/attention.html"
+    - "Aladdin Perssons' Transformer from Scratch YouTube video: https://www.youtube.com/watch?v=U0s0f995w14&ab_channel=AladdinPersson"
+    - "Ben Trevett's Language Translation with Transformer and Torchtext tutorial: https://pytorch.org/tutorials/beginner/torchtext_translation_tutorial.html?highlight=transformer"
+
 
 I tried to balance between adhering to the variable names in the paper and using plain English for ease of comprehension
 """
@@ -57,10 +61,10 @@ class MultiHeadedAttention(nn.Module):
     def forward(self, value: Tensor, key: Tensor, query: Tensor, mask: Tensor) -> Tensor:
         """
 
-        :param value:
-        :param key:
-        :param query:
-        :param mask:
+        :param value: value Tensor shape (N, sequence length, d_model)
+        :param key: key Tensor shape (N, sequence length, d_model)
+        :param query: query Tensor shape (N, sequence length, d_model)
+        :param mask: src or trg masking Tensor shape src(N, 1, 1, src_seq_len) trg(N, 1, trg_seq_len, trg_seq_len)
         :return:
         """
         # value/key/query.shape: (N, sequence length, d_model)
@@ -181,6 +185,7 @@ class EncoderLayer(nn.Module):
         5. add and normalize output_from_ffn with residual (output from attention sublayer) from before the ffn layer
         6. apply dropout to the added and normed output of the FFN sublayer
 
+
         :param src: src shape (N, src_seq_len, d_model)
         :param src_mask: src_mask shape (N, 1, 1, src_seq_len)
         :return: output Tensor that will become input Tensor in the next EncoderLayer
@@ -198,6 +203,9 @@ class EncoderLayer(nn.Module):
 
 
 class PositionEmbedding(nn.Module):
+    """
+    TODO implement PositionEmbedding per paper
+    """
     pass
 
 
@@ -224,7 +232,7 @@ class Encoder(nn.Module):
         self.device = device
 
         self.input_embedding = nn.Embedding(src_vocab_size, d_model)
-        self.position_embedding = nn.Embedding(max_length, d_model)  # TODO implement PositionEmbedding per paper
+        self.position_embedding = nn.Embedding(max_length, d_model)
 
         self.encoder_layers = nn.ModuleList([EncoderLayer(d_model, n_heads, d_ff, dropout_p)
                                              for _ in range(nx_layers)])
@@ -263,8 +271,11 @@ class Encoder(nn.Module):
 
 class DecoderLayer(nn.Module):
     """
-    Implement the Decoder block with the 3 sublayers: 1) decoder attention sublayer 2) encoder attention sublayer
-    3) FFN sublayer.
+    Implement the Decoder block with the 3 sublayers:
+        1. decoder attention sublayer
+        2. encoder attention sublayer
+        3. FFN sublayer
+
     This layer is stacked n_layers times in the Decoder part of the Transformer architecture
     """
 
@@ -290,9 +301,9 @@ class DecoderLayer(nn.Module):
         5. add and normalize encoder attention sublayer output with residual from the output of step 3.
         6. apply dropout to the added and normed output of the encoder attention sublayer
         7. output from encoder attention sublayer goes through FFN
-        8. add and normalize output_from_ffn with residual (output from decoder attention sublayer) from before the
-        ffn layer
+        8. add and normalize output_from_ffn with residual (output from decoder attention sublayer) from before the ffn layer
         9. apply dropout to the added and normed output of the FFN sublayer
+
 
         :param trg: shape (N, trg_seq_len, d_model)
         :param src_encoder_output: shape (N, src_seq_len, d_model)
