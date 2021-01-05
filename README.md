@@ -150,31 +150,53 @@ usage: eval_model.py
 optional arguments:
 
   > -h                 
-    >show this help message and exit  
+  >>        show this help message and exit  
   > -data_path         
-    >data directory; default='data'  
-  > -log_path        log file directory; default='log'  
-  > -pkl_path        pickle file directory; default='pkl'  
-  > -model_path      saved models directory; default='saved_models'  
-  > -src_data        src corpus filename; default='news-commentary-v8.de-en.de'  
-  > -trg_data        trg corpus filename; default='news-commentary-v8.de-en.en'  
-  > -src_lang        source language; default='de'  
-  > -trg_lang        target language; default='en'  
-  > -dmodel          d_model or hidden size; default=512  
-  > -dff             d_ff or hidden size of FFN sublayer; default=2048  
-  > -nlayers         number of encoder/decoder layers; default=6  
-  > -heads           number of attention heads; default=8  
-  > -dropout         value for dropout p parameter; default=0.1  
-  > -batch_size      number of samples per batch; default=48  
-  > -lr              learning rate for gradient update; default=3e-4  
-  > -max_len         maximum number of tokens in a sentence; default=150  
-  > -num_sents       number of sentences to partition toy corpus; default=1024  
-  > -toy_run         whether or not toy dataset; default=False  
-  > -debug           turn logging to debug mode to display more info; default=False  
-  > -save_model      True to save model checkpoint; default=True  
-  > -override        override existing log file; default=False  
-  > -seed            seed for the iterator random shuffling repeat; default=1234  
-  > -sample_idx      index for a sample sentence pair example; default=8  
+  >>        data directory; default='data'  
+  > -log_path  
+  >>        log file directory; default='log'  
+  > -pkl_path        
+  >>        pickle file directory; default='pkl'  
+  > -model_path
+  >>        saved models directory; default='saved_models'  
+  > -src_data        
+  >>        src corpus filename; default='news-commentary-v8.de-en.de'  
+  > -trg_data        
+  >>        trg corpus filename; default='news-commentary-v8.de-en.en'  
+  > -src_lang
+  >>        source language; default='de'  
+  > -trg_lang
+  >>        target language; default='en'  
+  > -dmodel
+  >>        d_model or hidden size; default=512  
+  > -dff             
+  >>        d_ff or hidden size of FFN sublayer; default=2048  
+  > -nlayers 
+  >>        number of encoder/decoder layers; default=6  
+  > -heads           
+  >>        number of attention heads; default=8  
+  > -dropout         
+  >>        value for dropout p parameter; default=0.1  
+  > -batch_size      
+  >>        number of samples per batch; default=48  
+  > -lr              
+  >>        learning rate for gradient update; default=3e-4  
+  > -max_len         
+  >>        maximum number of tokens in a sentence; default=150  
+  > -num_sents       
+  >>        number of sentences to partition toy corpus; default=1024  
+  > -toy_run         
+  >>        whether or not toy dataset; default=False  
+  > -debug           
+  >>        turn logging to debug mode to display more info; default=False  
+  > -save_model      
+  >>        True to save model checkpoint; default=True  
+  > -override        
+  >>        override existing log file; default=False  
+  > -seed            
+  >>        seed for the iterator random shuffling repeat; default=1234  
+  > -sample_idx      
+  >>        index for a sample sentence pair example; default=8  
 
 Results are recorded in the log files.
 
