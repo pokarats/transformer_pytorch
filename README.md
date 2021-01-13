@@ -566,10 +566,10 @@ This layer is stacked n_layers times in the Decoder part of the Transformer arch
     1.a in the EncoderLayer V,K,Q are all from the same input trg
 
 
-2. add and normalize attention sublayer output with residual input from before the decoder attention sublayer
+2. apply dropout to the output of the attention sublayer output
 
 
-3. apply dropout to the added and normed output of the attention sublayer
+3. add and normalize attention sublayer output with residual input from before the decoder attention sublayer
 
 
 4. encoder attention sublayer
@@ -578,19 +578,22 @@ This layer is stacked n_layers times in the Decoder part of the Transformer arch
     V,K are from last encoder layer output
 
 
-5. add and normalize encoder attention sublayer output with residual from the output of step 3.
+5. apply dropout to the output of the encoder attention sublayer
 
 
-6. apply dropout to the added and normed output of the encoder attention sublayer
+6. add and normalize encoder attention sublayer output with residual from the output of step 3.
 
 
 7. output from encoder attention sublayer goes through FFN
 
 
-8. add and normalize output_from_ffn with residual (output from decoder attention sublayer) from before the ffn layer
+8. apply dropout to the output of the FFN
 
 
-9. apply dropout to the added and normed output of the FFN sublayer
+9. add and normalize output_from_ffn with residual (output from decoder attention sublayer) from before the ffn layer
+
+
+
 
 
 * **Parameters**
@@ -649,19 +652,19 @@ This layer is stacked n_layers times in the Encoder part of the Transformer arch
     1.a in the EncoderLayer V,K,Q are all from the same x input
 
 
-2. add and normalize attention sublayer output with residual input from before the attention_sublayer
+2. apply dropout to the output of the attention sublayer
 
 
-3. apply dropout to the added and normed output of the attention sublayer
+3. add and normalize attention sublayer output with residual input from before the attention_sublayer
 
 
 4. output from attention sublayer goes through FFN
 
 
-5. add and normalize output_from_ffn with residual (output from attention sublayer) from before the ffn layer
+5. apply dropout to the added and normed output of the FFN sublayer
 
 
-6. apply dropout to the added and normed output of the FFN sublayer
+6. add and normalize output_from_ffn with residual (output from attention sublayer) from before the ffn layer
 
 
 * **Parameters**
