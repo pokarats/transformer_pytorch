@@ -311,7 +311,7 @@ def main():
     # CrossEntropyLoss has softmax built in, so no need for the final softmax layer in model architecture
     criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
-    # train model, track taining and validation losses
+    # train model, track training and validation losses
     for epoch in tqdm(range(num_epochs)):
 
         start_time = time.time()
