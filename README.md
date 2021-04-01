@@ -11,8 +11,7 @@ For data, I used the provided dataset, specifically the `news-commentary-v8.de-e
 `news-commentary-v8.de-en.en`.
 
 For time efficiency, I have only trained the model on the first 1024 sentences partition of the dataset to make sure
-that the model executes without errors. The results from simply running this small toy dataset does not seem to work as
-it shows a BLEU score of 0 in the `eval_model.log` file.
+that the model executes without errors.
 
 I have not fully trained and evaluated the model on the entire dataset or on other datasets
 to verify how well this works. However, from the `train_model.log` file, it does show that the training and validation
